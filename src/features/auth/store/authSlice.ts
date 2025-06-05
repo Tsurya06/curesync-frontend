@@ -1,11 +1,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { 
-  AuthState, 
   LoginRequest, 
   LoginResponse, 
   RegisterRequest,
   RefreshTokenResponse, 
-  LogoutRequest
+  LogoutRequest,
+  User
 } from '@/common/types/auth.types';
 import { 
   setTokenInStorage, 
@@ -16,6 +16,14 @@ import {
 } from '@/services/token/tokenService';
 import apiClient from '@/services/apiClient';
 
+export type AuthState ={
+  user: User | null;
+  accessToken: string | null;
+  refreshToken: string | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
 // Initial state
 const initialState: AuthState = {
   user: null,
@@ -66,7 +74,7 @@ export const refreshTokens = createAsyncThunk<RefreshTokenResponse, string>(
   'auth/refreshTokens',
   async (refreshToken, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post<RefreshTokenResponse>('v1/auth/refresh', { refreshToken });
+      const response = await apiClient.post<RefreshTokenResponse>('v1/auth/refresh-token', { refreshToken });
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Token refresh failed');
@@ -82,6 +90,24 @@ export const fetchUserProfile = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch user profile');
+    }
+  }
+);
+
+export const checkAuthStatus = createAsyncThunk(
+  'auth/checkAuthStatus',
+  async (_, { dispatch, rejectWithValue }) => {
+    const token = getTokenFromStorage();
+    if (!token) {
+      return rejectWithValue('No authentication token found');
+    }
+
+    try {
+      const userData = await dispatch(fetchUserProfile()).unwrap();
+      return userData;
+    } catch (error: any) {
+      removeTokensFromStorage();
+      return rejectWithValue(error.message || 'Failed to authenticate with stored token');
     }
   }
 );
@@ -191,6 +217,20 @@ const authSlice = createSlice({
       .addCase(fetchUserProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      // Check auth status
+      .addCase(checkAuthStatus.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload;
+      })
+      .addCase(checkAuthStatus.rejected, (state) => {
+        state.isLoading = false;
+        state.isAuthenticated = false;
+        state.user = null;
+        state.accessToken = null;
+        state.refreshToken = null;
+        removeTokensFromStorage();
       });
   },
 });

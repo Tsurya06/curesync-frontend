@@ -1,26 +1,17 @@
 export type User ={
-  id: string;
   email: string;
   firstName: string;
   lastName: string;
   role: UserRole;
   avatar?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
+  bio?:string;
 }
 
 export enum UserRole {
   ROLE_ADMIN = 'ROLE_ADMIN',
   ROLE_USER = 'ROLE_USER',
-}
-
-export type AuthState ={
-  user: User | null;
-  accessToken: string | null;
-  refreshToken: string | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  error: string | null;
 }
 
 export type LoginRequest ={

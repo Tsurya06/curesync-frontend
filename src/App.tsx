@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
+import AuthInitializer from '@/components/AuthInitializer';
 
 // Initialize i18n
 import '@/lib/i18n';
@@ -45,10 +46,12 @@ function App() {
   return (
     <Provider store={store}>
       <TooltipProvider>
-        <div className={`min-h-screen bg-background text-foreground ${theme}`}>
-          <AppRouter />
-          <Toaster position="top-right" />
-        </div>
+        <AuthInitializer>
+          <div className={`min-h-screen bg-background text-foreground ${theme}`}>
+            <AppRouter />
+            <Toaster position="top-right" />
+          </div>
+        </AuthInitializer>
       </TooltipProvider>
     </Provider>
   );
