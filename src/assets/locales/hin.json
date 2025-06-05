@@ -1,0 +1,91 @@
+{
+    "common": {
+      "loading": "लोड हो रहा है...",
+      "error": "त्रुटि",
+      "success": "सफलता",
+      "cancel": "रद्द करें",
+      "save": "सहेजें",
+      "delete": "हटाएं",
+      "edit": "संपादित करें",
+      "create": "बनाएं",
+      "back": "पीछे",
+      "next": "आगे",
+      "submit": "जमा करें",
+      "search": "खोजें",
+      "filter": "फ़िल्टर करें",
+      "noResults": "कोई परिणाम नहीं मिला",
+      "noData": "कोई डेटा उपलब्ध नहीं है"
+    },
+    "navigation": {
+      "home": "मुखपृष्ठ",
+      "dashboard": "डैशबोर्ड",
+      "profile": "प्रोफ़ाइल",
+      "settings": "सेटिंग्स",
+      "logout": "लॉगआउट"
+    },
+    "auth": {
+      "login": "लॉगिन",
+      "register": "पंजीकरण",
+      "forgotPassword": "पासवर्ड भूल गए?",
+      "resetPassword": "पासवर्ड रीसेट करें",
+      "email": "ईमेल",
+      "password": "पासवर्ड",
+      "confirmPassword": "पासवर्ड की पुष्टि करें",
+      "firstName": "पहला नाम",
+      "lastName": "अंतिम नाम",
+      "rememberMe": "मुझे याद रखें",
+      "dontHaveAccount": "क्या आपके पास खाता नहीं है?",
+      "alreadyHaveAccount": "पहले से खाता है?",
+      "signUp": "साइन अप करें",
+      "signIn": "साइन इन करें",
+      "logout": "लॉगआउट",
+      "loginSuccess": "सफलतापूर्वक लॉगिन हुआ",
+      "registerSuccess": "पंजीकरण सफल हुआ",
+      "logoutSuccess": "सफलतापूर्वक लॉगआउट हुआ",
+      "passwordResetSuccess": "पासवर्ड सफलतापूर्वक रीसेट हुआ",
+      "invalidCredentials": "अमान्य ईमेल या पासवर्ड",
+      "emailRequired": "ईमेल आवश्यक है",
+      "passwordRequired": "पासवर्ड आवश्यक है",
+      "nameRequired": "नाम आवश्यक है",
+      "passwordMismatch": "पासवर्ड मेल नहीं खा रहे हैं",
+      "passwordMinLength": "पासवर्ड कम से कम 8 वर्णों का होना चाहिए",
+      "emailInvalid": "कृपया एक मान्य ईमेल पता दर्ज करें"
+    },
+    "dashboard": {
+      "welcome": "स्वागत है, {{name}}!",
+      "summary": "डैशबोर्ड सारांश",
+      "recentActivity": "हाल की गतिविधि",
+      "quickActions": "त्वरित क्रियाएं",
+      "viewAll": "सभी देखें"
+    },
+    "profile": {
+      "personalInfo": "व्यक्तिगत जानकारी",
+      "updateProfile": "प्रोफ़ाइल अपडेट करें",
+      "changePassword": "पासवर्ड बदलें",
+      "currentPassword": "वर्तमान पासवर्ड",
+      "newPassword": "नया पासवर्ड",
+      "confirmNewPassword": "नए पासवर्ड की पुष्टि करें",
+      "profileUpdated": "प्रोफ़ाइल सफलतापूर्वक अपडेट हुई",
+      "passwordChanged": "पासवर्ड सफलतापूर्वक बदला गया"
+    },
+    "settings": {
+      "general": "सामान्य सेटिंग्स",
+      "account": "खाता सेटिंग्स",
+      "notifications": "सूचनाएं",
+      "privacy": "गोपनीयता और सुरक्षा",
+      "language": "भाषा",
+      "theme": "थीम",
+      "darkMode": "डार्क मोड",
+      "lightMode": "लाइट मोड",
+      "systemDefault": "सिस्टम डिफ़ॉल्ट"
+    },
+    "errors": {
+      "somethingWentWrong": "कुछ गलत हो गया",
+      "pageNotFound": "पृष्ठ नहीं मिला",
+      "unauthorized": "अनधिकृत पहुँच",
+      "sessionExpired": "आपका सत्र समाप्त हो गया है। कृपया पुनः लॉगिन करें।",
+      "networkError": "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें।",
+      "tryAgain": "कृपया पुनः प्रयास करें"
+    }
+  }
+  
