@@ -1,16 +1,15 @@
 import * as React from 'react';
-import { Moon, Sun, Monitor } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/hooks/useTheme';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-type Theme = 'light' | 'dark' | 'system';
+type Theme = 'light' | 'dark';
 
 const themes = [
   { id: 'light' as const, icon: Sun, label: 'Light' },
   { id: 'dark' as const, icon: Moon, label: 'Dark' },
-  { id: 'system' as const, icon: Monitor, label: 'System' },
 ];
 
 export function ThemeToggle() {

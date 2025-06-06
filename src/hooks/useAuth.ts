@@ -5,9 +5,11 @@ import {
   register, 
   logout, 
   fetchUserProfile, 
-  logoutUser
+  logoutUser,
+  updateProfile as updateProfileAction,
+  updatePassword as updatePasswordAction
 } from '@/features/auth/store/authSlice';
-import type { LoginRequest, RegisterRequest, User } from '@/common/types/auth.types';
+import type { LoginRequest, RegisterRequest, UpdateProfileData } from '@/common/types/auth.types';
 import { getRefreshTokenFromStorage } from '@/services/token/tokenService';
 
 export const useAuth = () => {
@@ -47,7 +49,7 @@ export const useAuth = () => {
     }
   }, [dispatch]);
   
-  const getCurrentUser = useCallback(async (): Promise<User | null> => {
+  const getCurrentUser = useCallback(async () => {
     if (user) return user;
     
     try {
@@ -58,6 +60,30 @@ export const useAuth = () => {
     }
   }, [dispatch, user]);
   
+  const updateProfile = useCallback(
+    async (profileData: UpdateProfileData) => {
+      try {
+        await dispatch(updateProfileAction(profileData)).unwrap();
+        return true;
+      } catch (err) {
+        return false;
+      }
+    },
+    [dispatch]
+  );
+
+  const updatePassword = useCallback(
+    async (currentPassword: string, newPassword: string) => {
+      try {
+        await dispatch(updatePasswordAction({ currentPassword, newPassword })).unwrap();
+        return true;
+      } catch (err) {
+        return false;
+      }
+    },
+    [dispatch]
+  );
+
   return {
     user,
     isAuthenticated,
@@ -67,5 +93,7 @@ export const useAuth = () => {
     registerUser,
     logOut,
     getCurrentUser,
+    updateProfile,
+    updatePassword,
   };
 };

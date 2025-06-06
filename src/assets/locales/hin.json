@@ -66,7 +66,17 @@
       "newPassword": "नया पासवर्ड",
       "confirmNewPassword": "नए पासवर्ड की पुष्टि करें",
       "profileUpdated": "प्रोफ़ाइल सफलतापूर्वक अपडेट हुई",
-      "passwordChanged": "पासवर्ड सफलतापूर्वक बदला गया"
+      "passwordChanged": "पासवर्ड सफलतापूर्वक बदला गया",
+      "firstNameRequired": "पहला नाम आवश्यक है",
+      "lastNameRequired": "अंतिम नाम आवश्यक है",
+      "currentPasswordRequired": "वर्तमान पासवर्ड आवश्यक है",
+      "newPasswordRequired": "नया पासवर्ड आवश्यक है",
+      "contactSupportEmail": "अपना ईमेल पता बदलने के लिए सहायता से संपर्क करें",
+      "bio": "जीवनी",
+      "bioPlaceholder": "हमें अपने बारे में बताएं...",
+      "security": "सुरक्षा",
+      "passwordUpdateSuccess": "पासवर्ड सफलतापूर्वक अपडेट हुआ",
+      "updateSuccess": "प्रोफ़ाइल सफलतापूर्वक अपडेट हुई"
     },
     "settings": {
       "general": "सामान्य सेटिंग्स",

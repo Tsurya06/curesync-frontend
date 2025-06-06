@@ -67,7 +67,17 @@
     "newPassword": "New Password",
     "confirmNewPassword": "Confirm New Password",
     "profileUpdated": "Profile updated successfully",
-    "passwordChanged": "Password changed successfully"
+    "passwordChanged": "Password changed successfully",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "currentPasswordRequired": "Current password is required",
+    "newPasswordRequired": "New password is required",
+    "contactSupportEmail": "Contact support to change your email address",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell us about yourself...",
+    "security": "Security",
+    "passwordUpdateSuccess": "Password updated successfully",
+    "updateSuccess": "Profile updated successfully"
   },
   "settings": {
     "general": "General Settings",

@@ -45,11 +45,34 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
         <LanguageSwitcher />
 
         {/* Notifications */}
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-1 top-1 flex h-2 w-2 rounded-full bg-destructive"></span>
-          <span className="sr-only">Notifications</span>
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-1 top-1 flex h-2 w-2 rounded-full bg-destructive"></span>
+              <span className="sr-only">Notifications</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-80">
+            <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            {/* Example notifications */}
+            <DropdownMenuItem className="flex flex-col items-start p-4">
+              <div className="font-medium">New Message</div>
+              <div className="text-sm text-muted-foreground">You have a new message from John Doe</div>
+              <div className="mt-1 text-xs text-muted-foreground">2 minutes ago</div>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="flex flex-col items-start p-4">
+              <div className="font-medium">System Update</div>
+              <div className="text-sm text-muted-foreground">The system has been updated successfully</div>
+              <div className="mt-1 text-xs text-muted-foreground">1 hour ago</div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-center text-sm text-primary">
+              View all notifications
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* User menu */}
         <DropdownMenu>

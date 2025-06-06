@@ -43,3 +43,9 @@ export type RefreshTokenResponse ={
   token: string;
   refreshToken: string;
 }
+
+export type UpdateProfileData = {
+  firstName: string;
+  lastName: string;
+  bio?: string;
+};

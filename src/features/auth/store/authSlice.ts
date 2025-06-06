@@ -5,7 +5,8 @@ import {
   RegisterRequest,
   RefreshTokenResponse, 
   LogoutRequest,
-  User
+  User,
+  UpdateProfileData
 } from '@/common/types/auth.types';
 import { 
   setTokenInStorage, 
@@ -35,12 +36,22 @@ const initialState: AuthState = {
 };
 
 // Async thunks
+type ApiResponse<T> ={
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp: string;
+}
+
 export const login = createAsyncThunk<LoginResponse, LoginRequest>(
   'auth/login',
   async (credentials, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post<LoginResponse>('v1/auth/login', credentials);
-      return response.data;
+      const response = await apiClient.post<ApiResponse<LoginResponse>>('v1/auth/login', credentials);
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message || 'Login failed');
+      }
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
@@ -62,8 +73,11 @@ export const register = createAsyncThunk<LoginResponse, RegisterRequest>(
   'auth/register',
   async (userData, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post<LoginResponse>('v1/auth/register', userData);
-      return response.data;
+      const response = await apiClient.post<ApiResponse<LoginResponse>>('v1/auth/register', userData);
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message || 'Registration failed');
+      }
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');
     }
@@ -74,8 +88,11 @@ export const refreshTokens = createAsyncThunk<RefreshTokenResponse, string>(
   'auth/refreshTokens',
   async (refreshToken, { rejectWithValue }) => {
     try {
-      const response = await apiClient.post<RefreshTokenResponse>('v1/auth/refresh-token', { refreshToken });
-      return response.data;
+      const response = await apiClient.post<ApiResponse<RefreshTokenResponse>>('v1/auth/refresh-token', { refreshToken });
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message || 'Token refresh failed');
+      }
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Token refresh failed');
     }
@@ -86,10 +103,45 @@ export const fetchUserProfile = createAsyncThunk(
   'auth/fetchUserProfile',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await apiClient.get('v1/auth/me');
-      return response.data;
+      const response = await apiClient.get<ApiResponse<User>>('v1/auth/me');
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message || 'Failed to fetch user profile');
+      }
+      return response.data.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch user profile');
+    }
+  }
+);
+
+export const updateProfile = createAsyncThunk<User, UpdateProfileData>(
+  'auth/updateProfile',
+  async (profileData, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.patch<ApiResponse<User>>('/v1/profile/update', profileData);
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message || 'Failed to update profile');
+      }
+      return response.data.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update profile');
+    }
+  }
+);
+
+export const updatePassword = createAsyncThunk<void, { currentPassword: string; newPassword: string }>(
+  'auth/updatePassword',
+  async ({ currentPassword, newPassword }, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.patch<ApiResponse<void>>('/v1/users/me/password', {
+        currentPassword,
+        newPassword,
+      });
+      if (!response.data.success) {
+        return rejectWithValue(response.data.message || 'Failed to update password');
+      }
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update password');
     }
   }
 );
@@ -124,14 +176,33 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       state.error = null;
       removeTokensFromStorage();
-    },
-    clearError: (state) => {
-      state.error = null;
-    },
+    }
   },
   extraReducers: (builder) => {
     builder
-      // Login
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.isLoading = false;
+      })
+      .addCase(updateProfile.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(updatePassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(updatePassword.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
       .addCase(login.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -235,5 +306,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;
