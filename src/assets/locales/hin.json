@@ -1,6 +1,7 @@
 {
     "common": {
       "loading": "लोड हो रहा है...",
+      "saving": "सहेजा जा रहा है...",
       "error": "त्रुटि",
       "success": "सफलता",
       "cancel": "रद्द करें",
@@ -61,6 +62,10 @@
     "profile": {
       "personalInfo": "व्यक्तिगत जानकारी",
       "updateProfile": "प्रोफ़ाइल अपडेट करें",
+      "updateProfileDescription": "अपनी व्यक्तिगत जानकारी और खाता सेटिंग्स अपडेट करें",
+      "changeProfilePicture": "प्रोफ़ाइल चित्र बदलें",
+      "firstName": "पहला नाम",
+      "lastName": "अंतिम नाम",
       "changePassword": "पासवर्ड बदलें",
       "currentPassword": "वर्तमान पासवर्ड",
       "newPassword": "नया पासवर्ड",
@@ -98,4 +103,3 @@
       "tryAgain": "कृपया पुनः प्रयास करें"
     }
   }
-  

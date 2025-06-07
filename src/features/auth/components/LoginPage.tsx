@@ -1,8 +1,8 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useLoginMutation } from '@/features/auth/api/authApi';
 import { 
   Card, 
   CardContent, 
@@ -32,16 +32,11 @@ const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
-  const { loginUser } = useAuth();
   const { toast } = useToast();
+  const [login, { isLoading: isSubmitting }] = useLoginMutation();
   
-  const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
-    rememberMe: false,
-  });
+  const [formData, setFormData] = useState<FormData>({ email: '', password: '', rememberMe: false });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
   // Get the redirect path from location state or default to dashboard
   const from = location.state?.from?.pathname || '/dashboard';
@@ -89,31 +84,11 @@ const LoginPage = () => {
     if (!validateForm()) return;
     
     try {
-      setIsSubmitting(true);
-      const { email, password } = formData;
-      const success = await loginUser({ email, password });
-      
-      if (success) {
-        toast({
-          title: t('auth.loginSuccess'),
-          variant: 'default',
-        });
-        
-        // Navigate to the redirect path
-        navigate(from, { replace: true });
-      } else {
-        toast({
-          title: t('auth.invalidCredentials'),
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: t('errors.somethingWentWrong'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
+      await login({ email: formData.email, password: formData.password }).unwrap();
+      toast({ title: t('auth.loginSuccess') });
+      navigate(from, { replace: true });
+    } catch {
+      toast({ title: t('auth.invalidCredentials'), variant: 'destructive' });
     }
   };
 

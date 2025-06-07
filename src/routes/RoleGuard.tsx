@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { UserRole } from '@/common/types/auth.types';
 import { Loader2 } from 'lucide-react';
+import { useIsAuthenticated } from '@/hooks/useIsAuthenticated';
 
 interface RoleGuardProps {
   allowedRoles: UserRole[];
@@ -9,7 +9,7 @@ interface RoleGuardProps {
 }
 
 const RoleGuard = ({ allowedRoles, redirectTo = '/dashboard' }: RoleGuardProps) => {
-  const { user, isLoading, isAuthenticated } = useAuth();
+  const {user,isAuthenticated,isLoading} = useIsAuthenticated();
   const location = useLocation();
 
   // Show loading spinner while checking authentication

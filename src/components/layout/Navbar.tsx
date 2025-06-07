@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -11,9 +10,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bell, Menu, Settings, User, LogOut } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import { useGetUserProfileQuery, useLogoutMutation, authApi } from '@/features/auth/api/authApi';
+import { removeTokensFromStorage } from '@/services/token/tokenService';
+import { useDispatch } from 'react-redux';
 
 interface NavbarProps {
   onMenuClick: () => void;
@@ -21,7 +23,16 @@ interface NavbarProps {
 
 const Navbar = ({ onMenuClick }: NavbarProps) => {
   const { t } = useTranslation();
-  const { user, logOut } = useAuth();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { data: user } = useGetUserProfileQuery();
+  const [logout, { isLoading: isLoggingOut }] = useLogoutMutation();
+  const handleLogout = async () => {
+    await logout().unwrap();
+    removeTokensFromStorage();
+    dispatch(authApi.util.resetApiState());
+    navigate('/login');
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center border-b bg-background px-4 md:px-6">
@@ -111,7 +122,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={logOut}>
+            <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>{t('navigation.logout')}</span>
             </DropdownMenuItem>

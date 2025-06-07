@@ -24,7 +24,7 @@ export type LogoutRequest ={
 
 export type LoginResponse ={
   user: User;
-  token: string;
+  accessToken: string;
   refreshToken: string;
 }
 

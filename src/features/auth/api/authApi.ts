@@ -1,26 +1,17 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { api } from '@/services/api';
 import { 
   LoginRequest, 
   LoginResponse, 
   RegisterRequest,
   RefreshTokenResponse,
-  User
+  User,
+  UpdateProfileData
 } from '@/common/types/auth.types';
-import { getTokenFromStorage } from '@/services/token/tokenService';
+import { getRefreshTokenFromStorage, setTokenInStorage, setRefreshTokenInStorage } from '@/services/token/tokenService';
 
 // RTK Query API definition
-export const authApi = createApi({
-  reducerPath: 'authApi',
-  baseQuery: fetchBaseQuery({ 
-    baseUrl: import.meta.env.VITE_BASE_URL,
-    prepareHeaders: (headers) => {
-      const token = getTokenFromStorage();
-      if (token) {
-        headers.set('authorization', `Bearer ${token}`);
-      }
-      return headers;
-    },
-  }),
+export const authApi = api.injectEndpoints({
+  overrideExisting: false,
   endpoints: (builder) => ({
     login: builder.mutation<LoginResponse, LoginRequest>({
       query: (credentials) => ({
@@ -28,6 +19,20 @@ export const authApi = createApi({
         method: 'POST',
         body: credentials,
       }),
+      transformResponse: (response: { data: { token: string; refreshToken: string; user: User } }) => ({
+        accessToken: response.data.token,
+        refreshToken: response.data.refreshToken,
+        user: response.data.user,
+      }),
+      async onQueryStarted(_, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled;
+          setTokenInStorage(data.accessToken);
+          setRefreshTokenInStorage(data.refreshToken);
+        } catch (e:any){
+          console.error(e.message);
+        }
+      },
     }),
     
     register: builder.mutation<LoginResponse, RegisterRequest>({
@@ -48,12 +53,34 @@ export const authApi = createApi({
     
     getUserProfile: builder.query<User, void>({
       query: () => '/v1/auth/me',
+      transformResponse: (response: { data: User }) => response.data,
+      providesTags: ['User'],
     }),
     
     logout: builder.mutation<void, void>({
       query: () => ({
         url: '/v1/auth/logout',
         method: 'POST',
+        body: { refreshToken: getRefreshTokenFromStorage() },
+      }),
+      invalidatesTags: ['User'],
+    }),
+    
+    updateProfile: builder.mutation<User, UpdateProfileData>({
+      query: (data) => ({
+        url: '/v1/profile/update',
+        method: 'PATCH',
+        body: data,
+      }),
+      transformResponse: (response: { data: User }) => response.data,
+      invalidatesTags: ['User'],
+    }),
+    
+    updatePassword: builder.mutation<void, { currentPassword: string; newPassword: string }>({
+      query: (data) => ({
+        url: '/v1/auth/update-password',
+        method: 'PUT',
+        body: data,
       }),
     }),
   }),
@@ -65,4 +92,6 @@ export const {
   useRefreshTokenMutation,
   useGetUserProfileQuery,
   useLogoutMutation,
+  useUpdateProfileMutation,
+  useUpdatePasswordMutation,
 } = authApi;

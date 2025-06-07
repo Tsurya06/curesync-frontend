@@ -1,7 +1,6 @@
 import { useState, FormEvent, ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Card, 
@@ -15,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { UserPlus, Loader2 } from 'lucide-react';
+import { useRegisterMutation } from '@/features/auth/api/authApi';
 
 type FormData = {
   firstName: string;
@@ -35,7 +35,6 @@ type FormErrors = {
 const RegisterPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { registerUser } = useAuth();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState<FormData>({
@@ -46,7 +45,7 @@ const RegisterPage = () => {
     confirmPassword: ''
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [register, { isLoading: isSubmitting }] = useRegisterMutation();
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -106,31 +105,12 @@ const RegisterPage = () => {
     if (!validateForm()) return;
     
     try {
-      setIsSubmitting(true);
       const { firstName, lastName, email, password } = formData;
-      const success = await registerUser({ firstName, lastName, email, password });
-      
-      if (success) {
-        toast({
-          title: t('auth.registerSuccess'),
-          variant: 'default',
-        });
-        
-        // Navigate to dashboard after successful registration
-        navigate('/dashboard');
-      } else {
-        toast({
-          title: t('errors.somethingWentWrong'),
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: t('errors.somethingWentWrong'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
+      await register({ firstName, lastName, email, password }).unwrap();
+      toast({ title: t('auth.registerSuccess') });
+      navigate('/dashboard');
+    } catch {
+      toast({ title: t('errors.somethingWentWrong'), variant: 'destructive' });
     }
   };
 

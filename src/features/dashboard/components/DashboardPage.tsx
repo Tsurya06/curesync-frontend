@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LayoutGrid, Activity, List, Calendar } from 'lucide-react';
+import { useIsAuthenticated } from '@/hooks/useIsAuthenticated';
 
 const DashboardPage = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
-
+  const {user} = useIsAuthenticated();
   return (
     <div className="space-y-6">
       <div>

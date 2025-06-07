@@ -1,13 +1,13 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
 import { Loader2 } from 'lucide-react';
+import { useIsAuthenticated } from '@/hooks/useIsAuthenticated';
 
 interface PrivateRouteProps {
   redirectTo?: string;
 }
 
 const PrivateRoute = ({ redirectTo = '/login' }: PrivateRouteProps) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const {isAuthenticated,isLoading} = useIsAuthenticated();
   const location = useLocation();
 
   // Show loading spinner while checking authentication

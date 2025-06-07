@@ -2,12 +2,21 @@ import { Navigate, Outlet } from 'react-router-dom';
 import { Toaster } from '@/components/ui/toaster';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
-import { useAuth } from '@/hooks/useAuth';
+import { useGetUserProfileQuery } from '@/features/auth/api/authApi';
+import { Loader2 } from 'lucide-react';
 
 const AuthLayout = () => {
-  const { isAuthenticated } = useAuth();
-  
-  if (isAuthenticated) {
+  const { data: user, isLoading } = useGetUserProfileQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (user) {
     return <Navigate to="/dashboard" replace />;
   }
 
@@ -30,7 +39,7 @@ const AuthLayout = () => {
 
       {/* Footer */}
       <footer className="py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} Your Company. All rights reserved.
+        &copy; {new Date().getFullYear()} Your Company. All rights reserved.
       </footer>
 
       {/* Toast notifications */}

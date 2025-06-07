@@ -1,6 +1,7 @@
 {
   "common": {
     "loading": "Loading...",
+    "saving": "Saving...",
     "error": "Error",
     "success": "Success",
     "cancel": "Cancel",
@@ -62,6 +63,10 @@
   "profile": {
     "personalInfo": "Personal Information",
     "updateProfile": "Update Profile",
+    "updateProfileDescription": "Update your personal information and account settings",
+    "changeProfilePicture": "Change profile picture",
+    "firstName": "First Name",
+    "lastName": "Last Name",
     "changePassword": "Change Password",
     "currentPassword": "Current Password",
     "newPassword": "New Password",

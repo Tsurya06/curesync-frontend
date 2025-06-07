@@ -2,10 +2,10 @@ import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAuth } from '@/hooks/useAuth';
 import { NavLink, useLocation } from 'react-router-dom';
 import { LayoutDashboard, BarChart, Settings, User, Users, X } from 'lucide-react';
 import { UserRole } from '@/common/types/auth.types';
+import { useGetUserProfileQuery } from '@/features/auth/api/authApi';
 
 interface SidebarProps {
   className?: string;
@@ -15,7 +15,7 @@ interface SidebarProps {
 
 const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { data: user } = useGetUserProfileQuery();
   const location = useLocation();
 
   const isAdmin = user?.role === UserRole.ROLE_ADMIN;
