@@ -1,0 +1,14 @@
+{
+  "general": "General Settings",
+  "generalManagement": "Manage general account settings",
+  "account": "Account Settings",
+  "accountManagement": "Manage your account settings and preferences",
+  "notifications": "Notifications",
+  "privacy": "Privacy & Security",
+  "language": "Language",
+  "theme": "Theme",
+  "appearance": "Appearance",
+  "darkMode": "Dark Mode",
+  "lightMode": "Light Mode",
+  "systemDefault": "System Default"
+}

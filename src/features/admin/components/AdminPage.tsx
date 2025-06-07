@@ -1,29 +1,63 @@
-import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Users, UserPlus, Settings, ShieldAlert } from 'lucide-react';
+import { useTranslation } from "react-i18next";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Users, UserPlus, Settings, ShieldAlert } from "lucide-react";
 
 const AdminPage = () => {
   const { t } = useTranslation();
 
   // Dummy users data
   const users = [
-    { id: 1, name: 'John Doe', email: 'john@example.com', role: 'user', status: 'active' },
-    { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'admin', status: 'active' },
-    { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'user', status: 'inactive' },
-    { id: 4, name: 'Alice Brown', email: 'alice@example.com', role: 'user', status: 'active' },
-    { id: 5, name: 'Charlie Wilson', email: 'charlie@example.com', role: 'user', status: 'active' },
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john@example.com",
+      role: "user",
+      status: "active",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      email: "jane@example.com",
+      role: "admin",
+      status: "active",
+    },
+    {
+      id: 3,
+      name: "Bob Johnson",
+      email: "bob@example.com",
+      role: "user",
+      status: "inactive",
+    },
+    {
+      id: 4,
+      name: "Alice Brown",
+      email: "alice@example.com",
+      role: "user",
+      status: "active",
+    },
+    {
+      id: 5,
+      name: "Charlie Wilson",
+      email: "charlie@example.com",
+      role: "user",
+      status: "active",
+    },
   ];
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">
-          Admin Dashboard
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
         <p className="text-muted-foreground">
           Manage users, settings, and system configuration
         </p>
@@ -44,7 +78,7 @@ const AdminPage = () => {
             Security
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="users">
           <Card>
             <CardHeader>
@@ -65,10 +99,7 @@ const AdminPage = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-4">
                   <div className="relative flex-1">
-                    <Input 
-                      placeholder="Search users..." 
-                      className="pl-8"
-                    />
+                    <Input placeholder="Search users..." className="pl-8" />
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
@@ -77,15 +108,14 @@ const AdminPage = () => {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground"
-                    >
+                      className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground">
                       <circle cx="11" cy="11" r="8" />
                       <path d="m21 21-4.35-4.35" />
                     </svg>
                   </div>
                   <Button variant="outline">Filter</Button>
                 </div>
-                
+
                 <div className="rounded-md border">
                   <div className="relative w-full overflow-auto">
                     <table className="w-full caption-bottom text-sm">
@@ -112,25 +142,26 @@ const AdminPage = () => {
                         {users.map((user) => (
                           <tr
                             key={user.id}
-                            className="border-b transition-colors hover:bg-muted/50"
-                          >
+                            className="border-b transition-colors hover:bg-muted/50">
                             <td className="p-4 align-middle">{user.name}</td>
                             <td className="p-4 align-middle">{user.email}</td>
                             <td className="p-4 align-middle">
-                              <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                user.role === 'admin' 
-                                  ? 'bg-primary/10 text-primary' 
-                                  : 'bg-muted text-muted-foreground'
-                              }`}>
+                              <span
+                                className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                  user.role === "admin"
+                                    ? "bg-primary/10 text-primary"
+                                    : "bg-muted text-muted-foreground"
+                                }`}>
                                 {user.role}
                               </span>
                             </td>
                             <td className="p-4 align-middle">
-                              <span className={`rounded-full px-2 py-1 text-xs font-medium ${
-                                user.status === 'active' 
-                                  ? 'bg-green-500/10 text-green-500' 
-                                  : 'bg-destructive/10 text-destructive'
-                              }`}>
+                              <span
+                                className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                  user.status === "active"
+                                    ? "bg-green-500/10 text-green-500"
+                                    : "bg-destructive/10 text-destructive"
+                                }`}>
                                 {user.status}
                               </span>
                             </td>
@@ -139,7 +170,10 @@ const AdminPage = () => {
                                 <Button variant="ghost" size="sm">
                                   Edit
                                 </Button>
-                                <Button variant="ghost" size="sm" className="text-destructive">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-destructive">
                                   Delete
                                 </Button>
                               </div>
@@ -150,10 +184,11 @@ const AdminPage = () => {
                     </table>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Showing <strong>1</strong> to <strong>5</strong> of <strong>50</strong> results
+                    Showing <strong>1</strong> to <strong>5</strong> of{" "}
+                    <strong>50</strong> results
                   </div>
                   <div className="flex items-center gap-2">
                     <Button variant="outline" size="sm" disabled>
@@ -168,7 +203,7 @@ const AdminPage = () => {
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="settings">
           <Card>
             <CardHeader>
@@ -182,21 +217,23 @@ const AdminPage = () => {
                 {/* General Settings */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">General</h3>
-                  
+
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="app-name">Application Name</Label>
                       <Input id="app-name" defaultValue="Admin Dashboard" />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="app-url">Application URL</Label>
                       <Input id="app-url" defaultValue="https://example.com" />
                     </div>
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="app-description">Application Description</Label>
+                    <Label htmlFor="app-description">
+                      Application Description
+                    </Label>
                     <textarea
                       id="app-description"
                       rows={3}
@@ -205,43 +242,41 @@ const AdminPage = () => {
                     />
                   </div>
                 </div>
-                
+
                 {/* Email Settings */}
                 <div className="space-y-4 border-t pt-6">
                   <h3 className="text-lg font-medium">Email Configuration</h3>
-                  
+
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="mail-driver">Mail Driver</Label>
                       <select
                         id="mail-driver"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                         <option>SMTP</option>
                         <option>Mailgun</option>
                         <option>SES</option>
                         <option>Postmark</option>
                       </select>
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="mail-host">Mail Host</Label>
                       <Input id="mail-host" defaultValue="smtp.example.com" />
                     </div>
                   </div>
-                  
+
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="mail-port">Mail Port</Label>
                       <Input id="mail-port" type="number" defaultValue="587" />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <Label htmlFor="mail-encryption">Mail Encryption</Label>
                       <select
                         id="mail-encryption"
-                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
                         <option>TLS</option>
                         <option>SSL</option>
                         <option>None</option>
@@ -249,13 +284,13 @@ const AdminPage = () => {
                     </div>
                   </div>
                 </div>
-                
-                <Button>{t('common.save')}</Button>
+
+                <Button>{t("save")}</Button>
               </div>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="security">
           <Card>
             <CardHeader>
@@ -269,15 +304,21 @@ const AdminPage = () => {
                 {/* Password Settings */}
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Password Policy</h3>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="min-password-length">Minimum Password Length</Label>
-                    <Input id="min-password-length" type="number" defaultValue="8" />
+                    <Label htmlFor="min-password-length">
+                      Minimum Password Length
+                    </Label>
+                    <Input
+                      id="min-password-length"
+                      type="number"
+                      defaultValue="8"
+                    />
                     <p className="text-xs text-muted-foreground">
                       Minimum characters required for user passwords
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -289,7 +330,7 @@ const AdminPage = () => {
                       Require special characters
                     </Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -297,11 +338,9 @@ const AdminPage = () => {
                       className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                       defaultChecked
                     />
-                    <Label htmlFor="require-numbers">
-                      Require numbers
-                    </Label>
+                    <Label htmlFor="require-numbers">Require numbers</Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -314,27 +353,36 @@ const AdminPage = () => {
                     </Label>
                   </div>
                 </div>
-                
+
                 {/* Login Settings */}
                 <div className="space-y-4 border-t pt-6">
                   <h3 className="text-lg font-medium">Login Settings</h3>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="max-login-attempts">Maximum Login Attempts</Label>
-                    <Input id="max-login-attempts" type="number" defaultValue="5" />
+                    <Label htmlFor="max-login-attempts">
+                      Maximum Login Attempts
+                    </Label>
+                    <Input
+                      id="max-login-attempts"
+                      type="number"
+                      defaultValue="5"
+                    />
                     <p className="text-xs text-muted-foreground">
                       Number of failed login attempts before account lockout
                     </p>
                   </div>
-                  
+
                   <div className="space-y-2">
-                    <Label htmlFor="lockout-time">Account Lockout Time (minutes)</Label>
+                    <Label htmlFor="lockout-time">
+                      Account Lockout Time (minutes)
+                    </Label>
                     <Input id="lockout-time" type="number" defaultValue="30" />
                     <p className="text-xs text-muted-foreground">
-                      Duration an account remains locked after reaching maximum login attempts
+                      Duration an account remains locked after reaching maximum
+                      login attempts
                     </p>
                   </div>
-                  
+
                   <div className="flex items-center space-x-2">
                     <input
                       type="checkbox"
@@ -346,8 +394,8 @@ const AdminPage = () => {
                     </Label>
                   </div>
                 </div>
-                
-                <Button>{t('common.save')}</Button>
+
+                <Button>{t("save")}</Button>
               </div>
             </CardContent>
           </Card>

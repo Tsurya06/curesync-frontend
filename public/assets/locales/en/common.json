@@ -1,0 +1,21 @@
+{
+ 
+    "loading": "Loading...",
+    "saving": "Saving...",
+    "updating": "Updating...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "submit": "Submit",
+    "search": "Search",
+    "filter": "Filter",
+    "noResults": "No results found",
+    "noData": "No data available"
+ 
+}

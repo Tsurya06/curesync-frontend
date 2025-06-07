@@ -1,0 +1,8 @@
+{
+  "welcome": "Welcome, {{name}}!",
+  "summary": "Here’s a quick summary of your metrics.",
+  "overview": "Overview",
+  "analytics": "Analytics",
+  "tasks": "Tasks",
+  "calendar": "Calendar"
+}

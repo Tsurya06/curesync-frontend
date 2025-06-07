@@ -6,7 +6,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { LayoutDashboard, BarChart, Settings, User, Users, X } from 'lucide-react';
 import { UserRole } from '@/common/types/auth.types';
 import { useGetUserProfileQuery } from '@/features/auth/api/authApi';
-
+import '@/lib/i18n';
 interface SidebarProps {
   className?: string;
   mobile?: boolean;
@@ -14,7 +14,7 @@ interface SidebarProps {
 }
 
 const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['navigation']);
   const { data: user } = useGetUserProfileQuery();
   const location = useLocation();
 
@@ -22,19 +22,19 @@ const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
 
   const navigation = [
     {
-      name: t('navigation.dashboard'),
+      name: t('dashboard'),
       href: '/dashboard',
       icon: LayoutDashboard,
       current: location.pathname === '/dashboard',
     },
     {
-      name: t('navigation.profile'),
+      name: t('profile'),
       href: '/profile',
       icon: User,
       current: location.pathname === '/profile',
     },
     {
-      name: t('navigation.settings'),
+      name: t('settings'),
       href: '/settings',
       icon: Settings,
       current: location.pathname === '/settings',

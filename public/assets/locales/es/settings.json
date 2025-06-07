@@ -1,0 +1,14 @@
+{
+  "general": "Configuración general",
+  "generalManagement": "Administrar la configuración general de la cuenta",
+  "account": "Configuración de la cuenta",
+  "accountManagement": "Administrar la configuración y preferencias de tu cuenta",
+  "notifications": "Notificaciones",
+  "privacy": "Privacidad y seguridad",
+  "language": "Idioma",
+  "theme": "Tema",
+  "appearance": "Apariencia",
+  "darkMode": "Modo oscuro",
+  "lightMode": "Modo claro",
+  "systemDefault": "Predeterminado del sistema"
+}

@@ -1,15 +1,21 @@
-import { useTranslation } from 'react-i18next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Settings, Bell, Shield, Palette } from 'lucide-react';
-import { useTheme } from '@/hooks/useTheme';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { useTranslation } from "react-i18next";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Settings, Bell, Shield, Palette } from "lucide-react";
+import { useTheme } from "@/hooks/useTheme";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const SettingsPage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('settings');
   const { theme, setTheme } = useTheme();
   const { i18n } = useTranslation();
 
@@ -17,7 +23,7 @@ const SettingsPage = () => {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          {t('settings.general')}
+          {t("general")}
         </h1>
         <p className="text-muted-foreground">
           Manage your account settings and preferences
@@ -28,39 +34,40 @@ const SettingsPage = () => {
         <TabsList className="grid grid-cols-4 w-full md:w-auto">
           <TabsTrigger value="general" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
-            General
+            {t("general")}
           </TabsTrigger>
-          <TabsTrigger value="notifications" className="flex items-center gap-2">
+          <TabsTrigger
+            value="notifications"
+            className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
-            Notifications
+            {t("notifications")}
           </TabsTrigger>
           <TabsTrigger value="appearance" className="flex items-center gap-2">
             <Palette className="h-4 w-4" />
-            Appearance
+            {t("appearance")}
           </TabsTrigger>
           <TabsTrigger value="privacy" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
-            Privacy
+            {t("privacy")}
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="general">
           <Card>
             <CardHeader>
-              <CardTitle>{t('settings.general')}</CardTitle>
-              <CardDescription>
-                Manage general account settings
-              </CardDescription>
+              <CardTitle>{t("general")}</CardTitle>
+              <CardDescription>Manage general account settings</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Language Preferences */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t('settings.language')}</h3>
-                <RadioGroup 
-                  defaultValue={i18n.language} 
+                <h3 className="text-lg font-medium">
+                  {t("language")}
+                </h3>
+                <RadioGroup
+                  defaultValue={i18n.language}
                   onValueChange={(value) => i18n.changeLanguage(value)}
-                  className="grid grid-cols-2 gap-4"
-                >
+                  className="grid grid-cols-2 gap-4">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="en" id="en" />
                     <Label htmlFor="en">English</Label>
@@ -75,7 +82,7 @@ const SettingsPage = () => {
                   </div>
                 </RadioGroup>
               </div>
-              
+
               {/* Email Preferences */}
               <div className="space-y-4 border-t pt-6">
                 <h3 className="text-lg font-medium">Email Preferences</h3>
@@ -88,7 +95,7 @@ const SettingsPage = () => {
                   </div>
                   <Switch id="marketing" />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="social">Social emails</Label>
@@ -98,7 +105,7 @@ const SettingsPage = () => {
                   </div>
                   <Switch id="social" defaultChecked />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="security">Security emails</Label>
@@ -109,12 +116,12 @@ const SettingsPage = () => {
                   <Switch id="security" defaultChecked disabled />
                 </div>
               </div>
-              
-              <Button>{t('common.save')}</Button>
+
+              <Button>{t("save")}</Button>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="notifications">
           <Card>
             <CardHeader>
@@ -127,7 +134,7 @@ const SettingsPage = () => {
               {/* Push Notifications */}
               <div className="space-y-4">
                 <h3 className="text-lg font-medium">Push Notifications</h3>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="push-everything">Everything</Label>
@@ -137,7 +144,7 @@ const SettingsPage = () => {
                   </div>
                   <Switch id="push-everything" />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="push-mentions">Mentions</Label>
@@ -147,10 +154,12 @@ const SettingsPage = () => {
                   </div>
                   <Switch id="push-mentions" defaultChecked />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="push-direct-messages">Direct messages</Label>
+                    <Label htmlFor="push-direct-messages">
+                      Direct messages
+                    </Label>
                     <p className="text-sm text-muted-foreground">
                       Receive push notifications for direct messages.
                     </p>
@@ -158,11 +167,11 @@ const SettingsPage = () => {
                   <Switch id="push-direct-messages" defaultChecked />
                 </div>
               </div>
-              
+
               {/* Email Notifications */}
               <div className="space-y-4 border-t pt-6">
                 <h3 className="text-lg font-medium">Email Notifications</h3>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="email-mentions">Mentions</Label>
@@ -172,7 +181,7 @@ const SettingsPage = () => {
                   </div>
                   <Switch id="email-mentions" />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="email-reminders">Reminders</Label>
@@ -183,12 +192,12 @@ const SettingsPage = () => {
                   <Switch id="email-reminders" defaultChecked />
                 </div>
               </div>
-              
-              <Button>{t('common.save')}</Button>
+
+              <Button>{t("save")}</Button>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="appearance">
           <Card>
             <CardHeader>
@@ -200,26 +209,29 @@ const SettingsPage = () => {
             <CardContent className="space-y-6">
               {/* Theme */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t('settings.theme')}</h3>
-                <RadioGroup 
-                  defaultValue={theme} 
-                  onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}
-                >
+                <h3 className="text-lg font-medium">{t("theme")}</h3>
+                <RadioGroup
+                  defaultValue={theme}
+                  onValueChange={(value) =>
+                    setTheme(value as "light" | "dark" | "system")
+                  }>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="light" id="light" />
-                    <Label htmlFor="light">{t('settings.lightMode')}</Label>
+                    <Label htmlFor="light">{t("lightMode")}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="dark" id="dark" />
-                    <Label htmlFor="dark">{t('settings.darkMode')}</Label>
+                    <Label htmlFor="dark">{t("darkMode")}</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="system" id="system" />
-                    <Label htmlFor="system">{t('settings.systemDefault')}</Label>
+                    <Label htmlFor="system">
+                      {t("systemDefault")}
+                    </Label>
                   </div>
                 </RadioGroup>
               </div>
-              
+
               {/* Font Size */}
               <div className="space-y-4 border-t pt-6">
                 <h3 className="text-lg font-medium">Font Size</h3>
@@ -238,12 +250,12 @@ const SettingsPage = () => {
                   </div>
                 </RadioGroup>
               </div>
-              
-              <Button>{t('common.save')}</Button>
+
+              <Button>{t("save")}</Button>
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="privacy">
           <Card>
             <CardHeader>
@@ -255,7 +267,9 @@ const SettingsPage = () => {
             <CardContent className="space-y-6">
               {/* Two Factor Authentication */}
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">Two-Factor Authentication</h3>
+                <h3 className="text-lg font-medium">
+                  Two-Factor Authentication
+                </h3>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="tfa">Enable 2FA</Label>
@@ -266,7 +280,7 @@ const SettingsPage = () => {
                   <Switch id="tfa" />
                 </div>
               </div>
-              
+
               {/* Sessions */}
               <div className="space-y-4 border-t pt-6">
                 <h3 className="text-lg font-medium">Sessions</h3>
@@ -275,15 +289,13 @@ const SettingsPage = () => {
                 </p>
                 <Button variant="outline">Sign out of all devices</Button>
               </div>
-              
+
               {/* Data Privacy */}
               <div className="space-y-4 border-t pt-6">
                 <h3 className="text-lg font-medium">Data Privacy</h3>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label htmlFor="analytics">
-                      Allow analytics
-                    </Label>
+                    <Label htmlFor="analytics">Allow analytics</Label>
                     <p className="text-sm text-muted-foreground">
                       Help us improve by allowing analytics data collection.
                     </p>
@@ -291,8 +303,8 @@ const SettingsPage = () => {
                   <Switch id="analytics" defaultChecked />
                 </div>
               </div>
-              
-              <Button>{t('common.save')}</Button>
+
+              <Button>{t("save")}</Button>
             </CardContent>
           </Card>
         </TabsContent>

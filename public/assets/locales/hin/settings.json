@@ -1,0 +1,14 @@
+{
+  "general": "सामान्य सेटिंग्स",
+  "generalManagement": "सामान्य खाता सेटिंग्स प्रबंधित करें",
+  "account": "खाता सेटिंग्स",
+  "accountManagement": "अपने खाता सेटिंग्स और प्राथमिकताओं को प्रबंधित करें",
+  "notifications": "अधिसूचनाएं",
+  "privacy": "गोपनीयता और सुरक्षा",
+  "language": "भाषा",
+  "theme": "थीम",
+  "appearance": "दिखावट",
+  "darkMode": "डार्क मोड",
+  "lightMode": "लाइट मोड",
+  "systemDefault": "सिस्टम डिफ़ॉल्ट"
+}

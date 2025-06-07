@@ -1,34 +1,20 @@
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-import enTranslation from '@/assets/locales/en.json';
-import esTranslation from '@/assets/locales/es.json';
-import inTranslation from '@/assets/locales/hin.json';
-
-const resources = {
-  en: {
-    translation: enTranslation,
-  },
-  hin: {
-    translation: inTranslation,
-  },
-  es: {
-    translation: esTranslation,
-  },
-};
+import i18n from "i18next";
+import Backend from "i18next-http-backend";
+import { initReactI18next } from "react-i18next";
 
 i18n
-  .use(initReactI18next)
+  .use(Backend) // <-- enable HTTP loading
+  .use(initReactI18next) // <-- hook into React
   .init({
-    resources,
-    lng: 'en', // Default language
-    fallbackLng: 'en',
-    interpolation: {
-      escapeValue: false, // React already safes from XSS
+    fallbackLng: "en",
+    ns: ["common"],
+    defaultNS: "common",
+    preload: ["common","dashboard"], // <-- common.json fetched at startup
+    backend: {
+      loadPath: "/assets/locales/{{lng}}/{{ns}}.json",
     },
-    react: {
-      useSuspense: true,
-    },
+    interpolation: { escapeValue: false },
+    react: { useSuspense: true },
   });
 
 export default i18n;

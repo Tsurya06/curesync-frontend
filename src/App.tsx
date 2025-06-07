@@ -8,9 +8,6 @@ import { useEffect } from 'react';
 import { useTheme } from '@/hooks/useTheme';
 import AuthInitializer from '@/components/AuthInitializer';
 
-// Initialize i18n
-import '@/lib/i18n';
-
 function App() {
   const { theme, currentTheme } = useTheme();
 

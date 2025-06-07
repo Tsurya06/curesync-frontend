@@ -1,24 +1,24 @@
-import { useState, FormEvent, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useState, FormEvent, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useGetUserProfileQuery,
   useUpdateProfileMutation,
   useUpdatePasswordMutation,
-} from '@/features/auth/api/authApi';
-import { useToast } from '@/hooks/use-toast';
+} from "@/features/auth/api/authApi";
+import { useToast } from "@/hooks/use-toast";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Lock, Loader2 } from 'lucide-react';
+} from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Lock, Loader2 } from "lucide-react";
 
 type ProfileFormData = {
   firstName: string;
@@ -38,19 +38,37 @@ type FormErrors = {
 };
 
 const ProfilePage = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['profile','auth','common']);
   const { data: user, isLoading: isFetching } = useGetUserProfileQuery();
-  const [updateProfile, { isLoading: isUpdatingProfile }] = useUpdateProfileMutation();
-  const [updatePassword, { isLoading: isUpdatingPassword }] = useUpdatePasswordMutation();
+  const [updateProfile, { isLoading: isUpdatingProfile }] =
+    useUpdateProfileMutation();
+  const [updatePassword, { isLoading: isUpdatingPassword }] =
+    useUpdatePasswordMutation();
   const { toast } = useToast();
 
-  const [activeTab, setActiveTab] = useState('personal');
-  const [profileData, setProfileData] = useState<ProfileFormData>({ firstName: '', lastName: '', bio: '' });
-  const [passwordData, setPasswordData] = useState<PasswordFormData>({ currentPassword: '', newPassword: '', confirmPassword: '' });
-  const [errors, setErrors] = useState<FormErrors>({ profile: {}, password: {} });
+  const [activeTab, setActiveTab] = useState("personal");
+  const [profileData, setProfileData] = useState<ProfileFormData>({
+    firstName: "",
+    lastName: "",
+    bio: "",
+  });
+  const [passwordData, setPasswordData] = useState<PasswordFormData>({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [errors, setErrors] = useState<FormErrors>({
+    profile: {},
+    password: {},
+  });
 
   useEffect(() => {
-    if (user) setProfileData({ firstName: user.firstName, lastName: user.lastName, bio: user.bio || '' });
+    if (user)
+      setProfileData({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        bio: user.bio || "",
+      });
   }, [user]);
 
   if (isFetching) {
@@ -62,19 +80,22 @@ const ProfilePage = () => {
   }
 
   const validateProfile = () => {
-    const errs: FormErrors['profile'] = {};
-    if (!profileData.firstName.trim()) errs.firstName = t('profile.firstNameRequired');
-    if (!profileData.lastName.trim()) errs.lastName = t('profile.lastNameRequired');
+    const errs: FormErrors["profile"] = {};
+    if (!profileData.firstName.trim()) errs.firstName = t("firstNameRequired");
+    if (!profileData.lastName.trim()) errs.lastName = t("lastNameRequired");
     setErrors((e) => ({ ...e, profile: errs }));
     return !Object.keys(errs).length;
   };
 
   const validatePassword = () => {
-    const errs: FormErrors['password'] = {};
-    if (!passwordData.currentPassword) errs.currentPassword = t('profile.currentPasswordRequired');
-    if (!passwordData.newPassword) errs.newPassword = t('profile.newPasswordRequired');
-    else if (passwordData.newPassword.length < 8) errs.newPassword = t('auth.passwordMinLength');
-    if (passwordData.newPassword !== passwordData.confirmPassword) errs.confirmPassword = t('auth.passwordMismatch');
+    const errs: FormErrors["password"] = {};
+    if (!passwordData.currentPassword)
+      errs.currentPassword = t("currentPasswordRequired");
+    if (!passwordData.newPassword) errs.newPassword = t("newPasswordRequired");
+    else if (passwordData.newPassword.length < 8)
+      errs.newPassword = t("auth:passwordMinLength");
+    if (passwordData.newPassword !== passwordData.confirmPassword)
+      errs.confirmPassword = t("auth:passwordMismatch");
     setErrors((e) => ({ ...e, password: errs }));
     return !Object.keys(errs).length;
   };
@@ -84,9 +105,9 @@ const ProfilePage = () => {
     if (!validateProfile()) return;
     try {
       await updateProfile(profileData).unwrap();
-      toast({ title: t('profile.updateSuccess') });
+      toast({ title: t("updateSuccess") });
     } catch {
-      toast({ title: t('errors.somethingWentWrong'), variant: 'destructive' });
+      toast({ title: t("somethingWentWrong"), variant: "destructive" });
     }
   };
 
@@ -96,18 +117,24 @@ const ProfilePage = () => {
     try {
       const { currentPassword, newPassword } = passwordData;
       await updatePassword({ currentPassword, newPassword }).unwrap();
-      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-      toast({ title: t('profile.passwordUpdateSuccess') });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      toast({ title: t("passwordUpdateSuccess") });
     } catch {
-      toast({ title: t('errors.somethingWentWrong'), variant: 'destructive' });
+      toast({ title: t("somethingWentWrong"), variant: "destructive" });
     }
   };
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">{t('profile.personalInfo')}</h1>
-        <p className="text-muted-foreground">{t('profile.contactSupportEmail')}</p>
+        <h1 className="text-3xl font-bold tracking-tight">
+          {t("personalInfo")}
+        </h1>
+        <p className="text-muted-foreground">{t("contactSupportEmail")}</p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-[1fr_2fr]">
@@ -117,63 +144,70 @@ const ProfilePage = () => {
             <Avatar className="h-24 w-24">
               <AvatarImage src={user?.avatar} alt={user?.firstName} />
               <AvatarFallback className="text-2xl">
-                {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
+                {user?.firstName?.charAt(0)}
+                {user?.lastName?.charAt(0)}
               </AvatarFallback>
             </Avatar>
-            
+
             <div className="text-center">
               <h2 className="text-xl font-bold">
                 {user?.firstName} {user?.lastName}
               </h2>
-              <p className="text-sm text-muted-foreground">
-                {user?.email}
-              </p>
+              <p className="text-sm text-muted-foreground">{user?.email}</p>
               <p className="text-sm mt-1 capitalize bg-muted inline-block px-2 py-1 rounded">
                 {user?.role}
               </p>
             </div>
 
-            <Button className="w-full">{t('profile.changeProfilePicture')}</Button>
+            <Button className="w-full">{t("changeProfilePicture")}</Button>
           </CardContent>
         </Card>
 
         {/* Profile settings */}
         <Card>
           <CardHeader>
-            <CardTitle>{t('profile.updateProfile')}</CardTitle>
-            <CardDescription>
-              {t('profile.updateProfileDescription')}
-            </CardDescription>
+            <CardTitle>{t("updateProfile")}</CardTitle>
+            <CardDescription>{t("updateProfileDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs
               value={activeTab}
               onValueChange={(value: string) => setActiveTab(value)}
-              className="w-full"
-            >
+              className="w-full">
               <TabsList className="grid grid-cols-2 mb-6">
-                <TabsTrigger value="personal" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="personal"
+                  className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  {t('profile.personalInfo')}
+                  {t("personalInfo")}
                 </TabsTrigger>
-                <TabsTrigger value="security" className="flex items-center gap-2">
+                <TabsTrigger
+                  value="security"
+                  className="flex items-center gap-2">
                   <Lock className="h-4 w-4" />
-                  {t('profile.security')}
+                  {t("security")}
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="personal">
                 <form onSubmit={handleProfileSubmit}>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="firstName">{t('profile.firstName')}</Label>
+                        <Label htmlFor="firstName">{t("firstName")}</Label>
                         <Input
                           id="firstName"
                           name="firstName"
                           value={profileData.firstName}
-                          onChange={(e) => setProfileData((p) => ({ ...p, firstName: e.target.value }))}
-                          className={errors.profile.firstName ? 'border-destructive' : ''}
+                          onChange={(e) =>
+                            setProfileData((p) => ({
+                              ...p,
+                              firstName: e.target.value,
+                            }))
+                          }
+                          className={
+                            errors.profile.firstName ? "border-destructive" : ""
+                          }
                         />
                         {errors.profile.firstName && (
                           <p className="text-sm text-destructive">
@@ -181,15 +215,22 @@ const ProfilePage = () => {
                           </p>
                         )}
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label htmlFor="lastName">{t('profile.lastName')}</Label>
+                        <Label htmlFor="lastName">{t("lastName")}</Label>
                         <Input
                           id="lastName"
                           name="lastName"
                           value={profileData.lastName}
-                          onChange={(e) => setProfileData((p) => ({ ...p, lastName: e.target.value }))}
-                          className={errors.profile.lastName ? 'border-destructive' : ''}
+                          onChange={(e) =>
+                            setProfileData((p) => ({
+                              ...p,
+                              lastName: e.target.value,
+                            }))
+                          }
+                          className={
+                            errors.profile.lastName ? "border-destructive" : ""
+                          }
                         />
                         {errors.profile.lastName && (
                           <p className="text-sm text-destructive">
@@ -198,59 +239,72 @@ const ProfilePage = () => {
                         )}
                       </div>
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label htmlFor="email">{t('auth.email')}</Label>
+                      <Label htmlFor="email">{t("email")}</Label>
                       <Input
                         id="email"
                         type="email"
-                        value={user?.email || ''}
+                        value={user?.email || ""}
                         disabled
                       />
                       <p className="text-xs text-muted-foreground">
-                        {t('profile.contactSupportEmail')}
+                        {t("contactSupportEmail")}
                       </p>
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label htmlFor="bio">{t('profile.bio')}</Label>
+                      <Label htmlFor="bio">{t("bio")}</Label>
                       <textarea
                         id="bio"
                         name="bio"
                         rows={4}
-                        value={profileData.bio || ''}
-                        onChange={(e) => setProfileData((p) => ({ ...p, bio: e.target.value }))}
+                        value={profileData.bio || ""}
+                        onChange={(e) =>
+                          setProfileData((p) => ({ ...p, bio: e.target.value }))
+                        }
                         className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-[80px]"
-                        placeholder={t('profile.bioPlaceholder')}
+                        placeholder={t("bioPlaceholder")}
                       />
                     </div>
-                    
+
                     <Button type="submit" disabled={isUpdatingProfile}>
                       {isUpdatingProfile ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          {t('common.saving')}
+                          {t("common:saving")}
                         </>
                       ) : (
-                        t('common.save')
+                        t("common:save")
                       )}
                     </Button>
                   </div>
                 </form>
               </TabsContent>
-              
+
               <TabsContent value="security">
                 <form onSubmit={handlePasswordSubmit}>
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword">{t('profile.currentPassword')}</Label>
+                      <Label htmlFor="currentPassword">
+                        {t("currentPassword")}
+                      </Label>
                       <Input
                         id="currentPassword"
                         name="currentPassword"
                         type="password"
                         value={passwordData.currentPassword}
-                        onChange={(e) => setPasswordData((p) => ({ ...p, currentPassword: e.target.value }))}
-                        className={errors.password.currentPassword ? 'border-destructive' : ''}
+                        onChange={(e) =>
+                          setPasswordData((p) => ({
+                            ...p,
+                            currentPassword: e.target.value,
+                          }))
+                        }
+                        className={
+                          errors.password.currentPassword
+                            ? "border-destructive"
+                            : ""
+                        }
                       />
                       {errors.password.currentPassword && (
                         <p className="text-sm text-destructive">
@@ -258,16 +312,25 @@ const ProfilePage = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword">{t('profile.newPassword')}</Label>
+                      <Label htmlFor="newPassword">{t("auth:newPassword")}</Label>
                       <Input
                         id="newPassword"
                         name="newPassword"
                         type="password"
                         value={passwordData.newPassword}
-                        onChange={(e) => setPasswordData((p) => ({ ...p, newPassword: e.target.value }))}
-                        className={errors.password.newPassword ? 'border-destructive' : ''}
+                        onChange={(e) =>
+                          setPasswordData((p) => ({
+                            ...p,
+                            newPassword: e.target.value,
+                          }))
+                        }
+                        className={
+                          errors.password.newPassword
+                            ? "border-destructive"
+                            : ""
+                        }
                       />
                       {errors.password.newPassword && (
                         <p className="text-sm text-destructive">
@@ -275,16 +338,27 @@ const ProfilePage = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
+                      <Label htmlFor="confirmPassword">
+                        {t("auth:confirmPassword")}
+                      </Label>
                       <Input
                         id="confirmPassword"
                         name="confirmPassword"
                         type="password"
                         value={passwordData.confirmPassword}
-                        onChange={(e) => setPasswordData((p) => ({ ...p, confirmPassword: e.target.value }))}
-                        className={errors.password.confirmPassword ? 'border-destructive' : ''}
+                        onChange={(e) =>
+                          setPasswordData((p) => ({
+                            ...p,
+                            confirmPassword: e.target.value,
+                          }))
+                        }
+                        className={
+                          errors.password.confirmPassword
+                            ? "border-destructive"
+                            : ""
+                        }
                       />
                       {errors.password.confirmPassword && (
                         <p className="text-sm text-destructive">
@@ -292,15 +366,15 @@ const ProfilePage = () => {
                         </p>
                       )}
                     </div>
-                    
+
                     <Button type="submit" disabled={isUpdatingPassword}>
                       {isUpdatingPassword ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          {t('common.updating')}
+                          {t("updating")}
                         </>
                       ) : (
-                        t('profile.changePassword')
+                        t("changePassword")
                       )}
                     </Button>
                   </div>

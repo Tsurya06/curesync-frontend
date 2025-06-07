@@ -1,0 +1,25 @@
+{
+    "personalInfo": "Personal Information",
+    "updateProfile": "Update Profile",
+    "updateProfileDescription": "Update your personal information and account settings",
+    "changeProfilePicture": "Change profile picture",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "profileUpdated": "Profile updated successfully",
+    "passwordChanged": "Password changed successfully",
+    "firstNameRequired": "First name is required",
+    "lastNameRequired": "Last name is required",
+    "currentPasswordRequired": "Current password is required",
+    "newPasswordRequired": "New password is required",
+    "contactSupportEmail": "Contact support to change your email address",
+    "bio": "Bio",
+    "bioPlaceholder": "Tell us about yourself...",
+    "security": "Security",
+    "passwordUpdateSuccess": "Password updated successfully",
+    "updateSuccess": "Profile updated successfully"
+  }
+

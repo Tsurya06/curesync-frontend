@@ -1,0 +1,7 @@
+{
+  "welcome": "¡Bienvenido, {{name}}!",
+  "summary": "Resumen del panel",
+  "recentActivity": "Actividad reciente",
+  "quickActions": "Acciones rápidas",
+  "viewAll": "Ver todo"
+}

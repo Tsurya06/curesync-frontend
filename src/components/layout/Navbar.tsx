@@ -22,7 +22,7 @@ interface NavbarProps {
 }
 
 const Navbar = ({ onMenuClick }: NavbarProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('navigation');
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { data: user } = useGetUserProfileQuery();
@@ -112,19 +112,19 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
             <DropdownMenuItem asChild>
               <Link to="/profile">
                 <User className="mr-2 h-4 w-4" />
-                <span>{t('navigation.profile')}</span>
+                <span>{t('profile')}</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link to="/settings">
                 <Settings className="mr-2 h-4 w-4" />
-                <span>{t('navigation.settings')}</span>
+                <span>{t('settings')}</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
               <LogOut className="mr-2 h-4 w-4" />
-              <span>{t('navigation.logout')}</span>
+              <span>{t('logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

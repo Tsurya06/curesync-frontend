@@ -24,6 +24,9 @@ const NotFoundPage = lazy(() => import('@/components/shared/NotFoundPage'));
 import LoadingFallback from '@/components/shared/LoadingFallback';
 import { UserRole } from '@/common/types/auth.types';
 
+import  '@/lib/i18n'
+
+
 const router = createBrowserRouter([
   // Public routes (auth)
   {
