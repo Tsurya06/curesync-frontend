@@ -30,6 +30,7 @@
   },
   "medications": {
     "title": "Medicamentos",
+    "subtitle": "Administra tus medicamentos y horarios diarios",
     "add": "Agregar Medicamento",
     "edit": "Editar Medicamento",
     "details": "Detalles del Medicamento",

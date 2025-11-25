@@ -1,4 +1,5 @@
 import { Plus, Edit2, Trash2, Clock, Bell, Check, X, History, User } from 'lucide-react';
+import { ErrorState } from '@/components/shared/ErrorState';
 import { useTranslation } from 'react-i18next';
 import { format, isToday, isTomorrow, parseISO, isSameMinute } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -155,9 +156,13 @@ export default function MedicationList() {
 
   if (isError) {
     return (
-      <div className="text-center py-10 text-destructive">
-        {t('medications.loadError')}
-      </div>
+      <ErrorState
+        pageTitle={t('medications.title')}
+        pageSubtitle={t('medications.subtitle')}
+        showHeader={true}
+        title={t('medications.error.title', 'Failed to Load')}
+        message={t('medications.error.message', 'Failed to load medications. Please try again.')}
+      />
     );
   }
 

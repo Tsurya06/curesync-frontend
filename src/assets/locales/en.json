@@ -30,6 +30,7 @@
   },
   "medications": {
     "title": "Medications",
+    "subtitle": "Manage your daily medications and schedules",
     "add": "Add Medication",
     "edit": "Edit Medication",
     "details": "Medication Details",
