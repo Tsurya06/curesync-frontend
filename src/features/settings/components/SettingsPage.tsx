@@ -82,39 +82,7 @@ const SettingsPage = () => {
                 </RadioGroup>
               </div>
 
-              {/* Email Preferences */}
-              <div className="space-y-4 border-t pt-6">
-                <h3 className="text-lg font-medium">{t('settings.emailPrefs.title')}</h3>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="marketing">{t('settings.emailPrefs.marketing')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.emailPrefs.marketingDesc')}
-                    </p>
-                  </div>
-                  <Switch id="marketing" />
-                </div>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="social">{t('settings.emailPrefs.social')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.emailPrefs.socialDesc')}
-                    </p>
-                  </div>
-                  <Switch id="social" defaultChecked />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="security">{t('settings.emailPrefs.security')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.emailPrefs.securityDesc')}
-                    </p>
-                  </div>
-                  <Switch id="security" defaultChecked disabled />
-                </div>
-              </div>
 
               <Button>{t('common.save')}</Button>
             </CardContent>
@@ -143,52 +111,9 @@ const SettingsPage = () => {
                   </div>
                   <Switch id="push-everything" />
                 </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="push-mentions">{t('settings.notificationsSection.pushMentions')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.notificationsSection.pushMentionsDesc')}
-                    </p>
-                  </div>
-                  <Switch id="push-mentions" defaultChecked />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="push-direct-messages">{t('settings.notificationsSection.pushDirect')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.notificationsSection.pushDirectDesc')}
-                    </p>
-                  </div>
-                  <Switch id="push-direct-messages" defaultChecked />
-                </div>
               </div>
 
-              {/* Email Notifications */}
-              <div className="space-y-4 border-t pt-6">
-                <h3 className="text-lg font-medium">{t('settings.notificationsSection.emailTitle')}</h3>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="email-mentions">{t('settings.notificationsSection.emailMentions')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.notificationsSection.emailMentionsDesc')}
-                    </p>
-                  </div>
-                  <Switch id="email-mentions" />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="email-reminders">{t('settings.notificationsSection.emailReminders')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.notificationsSection.emailRemindersDesc')}
-                    </p>
-                  </div>
-                  <Switch id="email-reminders" defaultChecked />
-                </div>
-              </div>
 
               <Button>{t('common.save')}</Button>
             </CardContent>
@@ -226,24 +151,7 @@ const SettingsPage = () => {
                 </RadioGroup>
               </div>
 
-              {/* Font Size */}
-              <div className="space-y-4 border-t pt-6">
-                <h3 className="text-lg font-medium">{t('settings.appearanceSection.fontSize')}</h3>
-                <RadioGroup defaultValue="medium">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="small" id="small" />
-                    <Label htmlFor="small">{t('settings.appearanceSection.small')}</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="medium" id="medium" />
-                    <Label htmlFor="medium">{t('settings.appearanceSection.medium')}</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="large" id="large" />
-                    <Label htmlFor="large">{t('settings.appearanceSection.large')}</Label>
-                  </div>
-                </RadioGroup>
-              </div>
+
 
               <Button>{t('common.save')}</Button>
             </CardContent>
@@ -259,22 +167,8 @@ const SettingsPage = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Two Factor Authentication */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t('settings.privacySection.tfaTitle')}</h3>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="tfa">{t('settings.privacySection.enableTfa')}</Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.privacySection.tfaDesc')}
-                    </p>
-                  </div>
-                  <Switch id="tfa" />
-                </div>
-              </div>
-
               {/* Sessions */}
-              <div className="space-y-4 border-t pt-6">
+              <div className="space-y-4">
                 <h3 className="text-lg font-medium">{t('settings.privacySection.sessionsTitle')}</h3>
                 <p className="text-sm text-muted-foreground">
                   {t('settings.privacySection.sessionsDesc')}
@@ -282,21 +176,7 @@ const SettingsPage = () => {
                 <Button variant="outline">{t('settings.privacySection.signOutAll')}</Button>
               </div>
 
-              {/* Data Privacy */}
-              <div className="space-y-4 border-t pt-6">
-                <h3 className="text-lg font-medium">{t('settings.privacySection.dataPrivacyTitle')}</h3>
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="analytics">
-                      {t('settings.privacySection.allowAnalytics')}
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      {t('settings.privacySection.allowAnalyticsDesc')}
-                    </p>
-                  </div>
-                  <Switch id="analytics" defaultChecked />
-                </div>
-              </div>
+
 
               <Button>{t('common.save')}</Button>
             </CardContent>
