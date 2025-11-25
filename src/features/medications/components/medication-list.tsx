@@ -1,7 +1,7 @@
 import { Plus, Edit2, Trash2, Clock, Bell, Check, X, History, User } from 'lucide-react';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { useTranslation } from 'react-i18next';
-import { format, isToday, isTomorrow, parseISO, isSameMinute } from 'date-fns';
+import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -34,9 +34,15 @@ export default function MedicationList() {
   const canViewHistory = !isCaregiver || hasPermission(CaregiverPermission.VIEW_HISTORY);
 
   const { data: medications, isLoading, isError } = useMedications(currentPatientId);
-  // Using today's date for schedule check, in real app might need date selection
-  const today = new Date().toISOString().split('T')[0];
-  const { data: dailySchedule } = useDailySchedule(today, currentPatientId);
+
+  // Get today's date in YYYY-MM-DD format using LOCAL timezone (not UTC)
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayString = `${year}-${month}-${day}`;
+
+  const { data: dailySchedule } = useDailySchedule(todayString, currentPatientId);
 
   const { mutate: logDose } = useLogDose();
   const { mutate: deleteMedication } = useDeleteMedication(); // Use correct hook
@@ -107,11 +113,21 @@ export default function MedicationList() {
     return () => window.removeEventListener('click', handleGlobalClick);
   }, [highlightedId]);
 
-  const handleLogDose = (medicationId: number, status: DoseStatus, scheduledTime: Date) => {
+  const handleLogDose = (medicationId: number, status: DoseStatus) => {
+    // Find today's scheduled dose for this medication
+    const todaysDose = dailySchedule?.find(
+      dose => dose.medicationId === medicationId && dose.status === DoseStatus.PENDING
+    );
+
+    if (!todaysDose) {
+      toast.error('No pending dose found for today');
+      return;
+    }
+
     logDose({
       medicationId,
       status,
-      scheduledTime: scheduledTime.toISOString(),
+      scheduledTime: todaysDose.scheduledTime, // Use the actual scheduled time from backend
       takenTime: new Date().toISOString(),
     }, {
       onSuccess: () => {
@@ -128,11 +144,22 @@ export default function MedicationList() {
   const getDoseStatus = (medId: number, scheduledTime?: Date) => {
     if (!dailySchedule || !scheduledTime) return null;
 
-    // Find a log entry that matches the medication ID and the scheduled time
+    // Simply check if there's a logged dose for this medication today
+    // Don't worry about exact time matching - just check if they took/skipped it today
+    const today = new Date();
+
     return dailySchedule.find(log => {
-      const idsMatch = log.medicationId === medId;
-      const timesMatch = isSameMinute(parseISO(log.scheduledTime), scheduledTime);
-      return idsMatch && timesMatch;
+      if (log.medicationId !== medId) return false;
+
+      // Check if this log is for today and has been taken/skipped
+      const logTime = parseISO(log.scheduledTime);
+      const isToday = logTime.getDate() === today.getDate() &&
+        logTime.getMonth() === today.getMonth() &&
+        logTime.getFullYear() === today.getFullYear();
+
+      const hasStatus = log.status === DoseStatus.TAKEN || log.status === DoseStatus.SKIPPED;
+
+      return isToday && hasStatus;
     });
   };
 
@@ -256,9 +283,7 @@ export default function MedicationList() {
                               title={t('medications.take')}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (nextDoseDate) {
-                                  handleLogDose(medication.id, DoseStatus.TAKEN, nextDoseDate);
-                                }
+                                handleLogDose(medication.id, DoseStatus.TAKEN);
                               }}
                             >
                               <Check className="h-4 w-4" />
@@ -270,9 +295,7 @@ export default function MedicationList() {
                               title={t('medications.skip')}
                               onClick={(e) => {
                                 e.stopPropagation();
-                                if (nextDoseDate) {
-                                  handleLogDose(medication.id, DoseStatus.SKIPPED, nextDoseDate);
-                                }
+                                handleLogDose(medication.id, DoseStatus.SKIPPED);
                               }}
                             >
                               <X className="h-4 w-4" />

@@ -11,6 +11,7 @@ import { format, parseISO } from 'date-fns';
 import { Check, X, Clock, AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useCaregiver } from '@/features/caregivers/context/CaregiverContext';
 
 interface DoseHistoryModalProps {
   medicationId: number | null;
@@ -18,10 +19,10 @@ interface DoseHistoryModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function DoseHistoryModal({ medicationId: _medicationId, open, onOpenChange }: DoseHistoryModalProps) {
+export function DoseHistoryModal({ medicationId, open, onOpenChange }: DoseHistoryModalProps) {
   const { t } = useTranslation();
-  const { data: history, isLoading } = useDoseHistory();
+  const { currentPatientId } = useCaregiver();
+  const { data: history, isLoading } = useDoseHistory(medicationId || undefined, currentPatientId);
 
   const getStatusIcon = (status: DoseStatus) => {
     switch (status) {

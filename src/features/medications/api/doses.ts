@@ -56,18 +56,58 @@ export const useLogDose = () => {
 
   return useMutation({
     mutationFn: logDose,
-    onSuccess: () => {
-      // Invalidate and refetch all dose-related queries immediately
-      queryClient.invalidateQueries({ queryKey: ['doses'], refetchType: 'all' });
+    onSuccess: (data) => {
+      // Get today's date in local timezone
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const todayString = `${year}-${month}-${day}`;
+
+      // Optimistically update the daily schedule cache
+      queryClient.setQueryData(['doses', 'schedule', todayString, undefined], (old: DoseLog[] | undefined) => {
+        if (!old) return [data];
+
+        // Check if this dose already exists (by id)
+        const existingIndex = old.findIndex(d => d.id === data.id);
+        if (existingIndex >= 0) {
+          // Update existing
+          const newData = [...old];
+          newData[existingIndex] = data;
+          return newData;
+        }
+
+        // Add new dose
+        return [...old, data];
+      });
+
+      // Also invalidate to refetch in background
+      queryClient.invalidateQueries({ queryKey: ['doses'] });
+      queryClient.invalidateQueries({ queryKey: ['medications'] });
     },
   });
 };
 
-// Deprecated or removed functions
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const useDoseHistory = (_medicationId?: number, _patientId?: number | null) => {
-  // Placeholder to prevent breaking imports immediately, but should be removed
-  return { data: [] as DoseLog[], isLoading: false };
+// Get dose history for a specific medication
+const getDoseHistory = async (medicationId: number, patientId?: number): Promise<DoseLog[]> => {
+  if (isMockMode()) {
+    await delay(500);
+    // Filter mock doses by medication ID
+    return MOCK_DOSES.filter(dose => dose.medicationId === medicationId);
+  }
+
+  const params: Record<string, string | number> = { medicationId };
+  if (patientId) params.patientId = patientId;
+
+  return api.get<DoseLog[]>(API_ENDPOINTS.DOSES.HISTORY, { params });
+};
+
+export const useDoseHistory = (medicationId?: number, patientId?: number | null) => {
+  return useQuery({
+    queryKey: ['doses', 'history', medicationId, patientId],
+    queryFn: () => getDoseHistory(medicationId!, patientId || undefined),
+    enabled: !!medicationId, // Only fetch if medication ID is provided
+  });
 };
 
 export const useDeleteDose = () => {
