@@ -81,10 +81,6 @@ const SettingsPage = () => {
                   </div>
                 </RadioGroup>
               </div>
-
-
-
-              <Button>{t('common.save')}</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -112,10 +108,6 @@ const SettingsPage = () => {
                   <Switch id="push-everything" />
                 </div>
               </div>
-
-
-
-              <Button>{t('common.save')}</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -152,8 +144,6 @@ const SettingsPage = () => {
               </div>
 
 
-
-              <Button>{t('common.save')}</Button>
             </CardContent>
           </Card>
         </TabsContent>
@@ -175,10 +165,6 @@ const SettingsPage = () => {
                 </p>
                 <Button variant="outline">{t('settings.privacySection.signOutAll')}</Button>
               </div>
-
-
-
-              <Button>{t('common.save')}</Button>
             </CardContent>
           </Card>
         </TabsContent>
