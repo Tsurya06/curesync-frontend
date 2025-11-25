@@ -6,8 +6,8 @@ import MainLayout from '@/layouts/MainLayout';
 import AuthLayout from '@/layouts/AuthLayout';
 
 // Route guards
-import PrivateRoute from '@/routes/PrivateRoute';
-import RoleGuard from '@/routes/RoleGuard';
+import { AuthGuard } from '@/app/router/guards/auth-guard';
+import { RoleGuard } from '@/app/router/guards/role-guard';
 
 // Auth pages (eager loading for critical auth pages)
 import LoginPage from '@/features/auth/components/LoginPage';
@@ -24,6 +24,15 @@ const NotFoundPage = lazy(() => import('@/components/shared/NotFoundPage'));
 import LoadingFallback from '@/components/shared/LoadingFallback';
 import { UserRole } from '@/common/types/auth.types';
 
+// Medication pages (lazy loaded)
+const MedicationList = lazy(() => import('@/features/medications/components/medication-list'));
+const MedicationForm = lazy(() => import('@/features/medications/components/medication-form'));
+
+
+// Caregiver pages (lazy loaded)
+const CaregiversPage = lazy(() => import('@/features/caregivers/components/CaregiversPage'));
+const PatientsPage = lazy(() => import('@/features/caregivers/components/PatientsPage'));
+
 const router = createBrowserRouter([
   // Public routes (auth)
   {
@@ -39,14 +48,14 @@ const router = createBrowserRouter([
       },
       {
         path: '/',
-        element: <Navigate to="/login\" replace />,
+        element: <Navigate to="/login" replace />,
       },
     ],
   },
-  
+
   // Protected routes
   {
-    element: <PrivateRoute />,
+    element: <AuthGuard />,
     children: [
       {
         element: <MainLayout />,
@@ -75,14 +84,54 @@ const router = createBrowserRouter([
               </Suspense>
             ),
           },
+          {
+            path: 'medications',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <MedicationList />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'medications/new',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <MedicationForm />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'medications/:id/edit',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <MedicationForm />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'caregivers',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <CaregiversPage />
+              </Suspense>
+            ),
+          },
+          {
+            path: 'patients',
+            element: (
+              <Suspense fallback={<LoadingFallback />}>
+                <PatientsPage />
+              </Suspense>
+            ),
+          },
         ],
       },
     ],
   },
-  
+
   // Admin routes
   {
-    element: <RoleGuard allowedRoles={[UserRole.ROLE_ADMIN]} />,
+    element: <RoleGuard allowedRoles={[UserRole.ADMIN]} />,
     children: [
       {
         element: <MainLayout />,
@@ -99,7 +148,7 @@ const router = createBrowserRouter([
       },
     ],
   },
-  
+
   // 404 route
   {
     path: '*',

@@ -53,46 +53,46 @@
   * {
     @apply border-border;
   }
-  
+
   html {
     @apply h-full;
   }
-  
+
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
-  
+
   /* Smooth theme transitions */
   *,
   *::before,
   *::after {
     @apply transition-colors duration-200;
   }
-  
+
   /* Scrollbar styling */
   ::-webkit-scrollbar {
     @apply w-2 h-2;
   }
-  
+
   ::-webkit-scrollbar-track {
     @apply bg-background;
   }
-  
+
   ::-webkit-scrollbar-thumb {
     @apply bg-border rounded-full hover:bg-muted-foreground/50;
   }
-  
+
   /* Selection styling */
   ::selection {
     @apply bg-primary/20 text-foreground;
   }
-  
+
   /* Focus styles */
   :focus-visible {
     @apply outline-2 outline-offset-2 outline-ring;
   }
-  
+
   /* Form elements */
   input,
   textarea,
@@ -100,12 +100,12 @@
   button {
     @apply focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
-  
+
   /* Buttons */
   button {
     @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50;
   }
-  
+
   /* Links */
   a {
     @apply text-primary underline-offset-4 hover:underline;
@@ -140,6 +140,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -172,7 +173,32 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }
+}
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Toast close button positioning */
+[data-sonner-toast] [data-close-button] {
+  position: absolute !important;
+  top: 0.5rem !important;
+  right: 0.5rem !important;
+  opacity: 0.7 !important;
+  transition: opacity 0.2s !important;
+}
+
+[data-sonner-toast] [data-close-button]:hover {
+  opacity: 1 !important;
 }

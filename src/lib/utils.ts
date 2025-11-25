@@ -6,6 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Function to safely access nested objects
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function get(obj: any, path: string, defaultValue: any = undefined) {
   const travel = (regexp: RegExp) =>
     String.prototype.split

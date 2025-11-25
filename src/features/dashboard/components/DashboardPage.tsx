@@ -1,18 +1,64 @@
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/hooks';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { LayoutGrid, Activity, List, Calendar } from 'lucide-react';
+import { useMedications } from '@/features/medications/api';
+import { useDoseHistory } from '@/features/medications/api/doses';
+import { calculateAdherenceStats } from '@/features/analytics/utils/adherence-util';
+import { AdherenceChart } from '@/features/analytics/components/AdherenceChart';
+import { AdherenceScoreWidget, MissedDosesWidget, StreakWidget } from './DashboardWidgets';
+import { useMemo } from 'react';
+
+import { useCaregiver } from '@/features/caregivers/context/CaregiverContext';
+import { usePatients } from '@/features/caregivers/api/caregivers';
 
 const DashboardPage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { currentPatientId } = useCaregiver();
+  const { data: patients } = usePatients();
+
+  const { data: medications } = useMedications(currentPatientId);
+  const { data: doseHistory } = useDoseHistory(undefined, currentPatientId);
+
+  const stats = useMemo(() => {
+    if (!medications || !doseHistory) return null;
+    return calculateAdherenceStats(doseHistory);
+  }, [medications, doseHistory]);
+
+  // Calculate missed doses for today (simplified)
+  // In a real app, this would check against the schedule for today up to current time
+  const missedDosesCount = 0; // Placeholder for now until we have robust "missed" logic
+
+  // Get current patient data
+  const currentPatient = patients?.find(p => p.id === currentPatientId);
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      {/* Caregiver Banner */}
+      {currentPatientId && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <div className="bg-blue-100 rounded-full p-2 mr-3">
+              <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-blue-800">{t('analytics.viewingPatient')}</p>
+              <p className="text-xs text-blue-600">{t('analytics.viewingPatientDesc')}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          {t('dashboard.welcome', { name: user?.firstName || '' })}
+          {currentPatientId
+            ? t('dashboard.welcome', { name: currentPatient ? `${currentPatient.firstName} ${currentPatient.lastName}` : t('analytics.patient', 'Patient') })
+            : t('dashboard.welcome', { name: user?.firstName || '' })
+          }
         </h1>
         <p className="text-muted-foreground">
           {t('dashboard.summary')}
@@ -23,210 +69,113 @@ const DashboardPage = () => {
         <TabsList>
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <LayoutGrid className="h-4 w-4" />
-            Overview
+            {t('dashboard.overview', 'Overview')}
           </TabsTrigger>
           <TabsTrigger value="analytics" className="flex items-center gap-2">
             <Activity className="h-4 w-4" />
-            Analytics
+            {t('dashboard.analytics', 'Analytics')}
           </TabsTrigger>
           <TabsTrigger value="tasks" className="flex items-center gap-2">
             <List className="h-4 w-4" />
-            Tasks
+            {t('dashboard.tasks', 'Tasks')}
           </TabsTrigger>
           <TabsTrigger value="calendar" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
-            Calendar
+            {t('dashboard.calendar', 'Calendar')}
           </TabsTrigger>
         </TabsList>
-        
+
         <TabsContent value="overview" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            {/* Overview Cards */}
+            {/* Analytics Widgets */}
+            <div className="col-span-1">
+              <AdherenceScoreWidget score={stats?.weeklyTrend[stats.weeklyTrend.length - 1]?.score || 0} />
+            </div>
+            <div className="col-span-1">
+              <StreakWidget streak={stats?.currentStreak || 0} bestStreak={stats?.bestStreak || 0} />
+            </div>
+            <div className="col-span-1">
+              <MissedDosesWidget count={missedDosesCount} />
+            </div>
+
+            {/* Placeholder for future widget */}
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
-                  Total Revenue
+                  {t('analytics.totalDoses', 'Total Doses')}
                 </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-                </svg>
+                <Activity className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">$45,231.89</div>
+                <div className="text-2xl font-bold">{stats?.totalDosesLogged || 0}</div>
                 <p className="text-xs text-muted-foreground">
-                  +20.1% from last month
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Subscriptions
-                </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+2,350</div>
-                <p className="text-xs text-muted-foreground">
-                  +180.1% from last month
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Sales</CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <rect width="20" height="14" x="2" y="5" rx="2" />
-                  <path d="M2 10h20" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+12,234</div>
-                <p className="text-xs text-muted-foreground">
-                  +19% from last month
-                </p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Active Now
-                </CardTitle>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2"
-                  className="h-4 w-4 text-muted-foreground"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                </svg>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">+573</div>
-                <p className="text-xs text-muted-foreground">
-                  +201 since last hour
+                  {t('analytics.lifetimeDoses', 'Lifetime doses logged')}
                 </p>
               </CardContent>
             </Card>
           </div>
-          
+
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-            <Card className="col-span-4">
-              <CardHeader>
-                <CardTitle>Overview</CardTitle>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <div className="h-[200px] w-full bg-muted/20 rounded-md flex items-center justify-center text-muted-foreground">
-                  Chart placeholder
-                </div>
-              </CardContent>
-            </Card>
-            
+            {/* Adherence Chart */}
+            <div className="col-span-4">
+              {stats && <AdherenceChart data={stats.weeklyTrend} />}
+            </div>
+
+            {/* Recent Activity / Tasks (Placeholder for now) */}
             <Card className="col-span-3">
               <CardHeader>
-                <CardTitle>Recent Sales</CardTitle>
+                <CardTitle>{t('analytics.upcomingDoses', 'Upcoming Doses')}</CardTitle>
                 <CardDescription>
-                  You made 265 sales this month.
+                  {t('analytics.upcomingDosesDesc', 'You have upcoming doses for today.')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-8">
-                  {[1, 2, 3, 4].map((i) => (
-                    <div key={i} className="flex items-center">
-                      <div className="h-9 w-9 rounded-full bg-muted"></div>
-                      <div className="ml-4 space-y-1">
-                        <p className="text-sm font-medium leading-none">
-                          User Name {i}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          user{i}@example.com
-                        </p>
-                      </div>
-                      <div className="ml-auto font-medium">+${(i * 100).toFixed(2)}</div>
-                    </div>
-                  ))}
+                <div className="flex items-center justify-center h-[200px] text-muted-foreground">
+                  <p>{t('analytics.upcomingDosesEmpty', 'Upcoming doses list coming soon...')}</p>
                 </div>
               </CardContent>
             </Card>
           </div>
         </TabsContent>
-        
+
         <TabsContent value="analytics" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Analytics</CardTitle>
+              <CardTitle>{t('analytics.detailedAnalytics', 'Detailed Analytics')}</CardTitle>
               <CardDescription>
-                View detailed analytics and reports.
+                {t('analytics.detailedAnalyticsDesc', 'View detailed adherence trends and reports.')}
               </CardDescription>
             </CardHeader>
-            <CardContent className="h-[400px] flex items-center justify-center text-muted-foreground">
-              Analytics content coming soon...
+            <CardContent className="h-[400px]">
+              {stats && <AdherenceChart data={stats.weeklyTrend} title={t('analytics.monthlyTrend', 'Monthly Adherence Trend')} />}
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="tasks" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Tasks</CardTitle>
+              <CardTitle>{t('dashboard.tasks', 'Tasks')}</CardTitle>
               <CardDescription>
-                Manage your tasks and to-dos.
+                {t('dashboard.tasksDesc', 'Manage your tasks and to-dos.')}
               </CardDescription>
             </CardHeader>
             <CardContent className="h-[400px] flex items-center justify-center text-muted-foreground">
-              Tasks content coming soon...
+              {t('dashboard.tasksEmpty', 'Tasks content coming soon...')}
             </CardContent>
           </Card>
         </TabsContent>
-        
+
         <TabsContent value="calendar" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Calendar</CardTitle>
+              <CardTitle>{t('dashboard.calendar', 'Calendar')}</CardTitle>
               <CardDescription>
-                View and manage your schedule.
+                {t('dashboard.calendarDesc', 'View and manage your schedule.')}
               </CardDescription>
             </CardHeader>
             <CardContent className="h-[400px] flex items-center justify-center text-muted-foreground">
-              Calendar content coming soon...
+              {t('dashboard.calendarEmpty', 'Calendar content coming soon...')}
             </CardContent>
           </Card>
         </TabsContent>

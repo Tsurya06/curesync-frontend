@@ -1,20 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { setupListeners } from '@reduxjs/toolkit/query';
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import authReducer from '@/features/auth/store/authSlice';
-import { authApi } from '@/features/auth/api/authApi';
+
+// At this point, we don't have any client state slices
+// Redux is kept for future complex UI state (forms, wizards, etc.)
+// Server state is managed by TanStack Query
 
 export const store = configureStore({
   reducer: {
-    auth: authReducer,
-    [authApi.reducerPath]: authApi.reducer,
+    // Add client-only state slices here as needed
+    // Example: uiState: uiReducer,
+    // Example: formDrafts: formDraftsReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware),
 });
-
-// Optional, but required for refetchOnFocus/refetchOnReconnect behaviors
-setupListeners(store.dispatch);
 
 // Infer the `RootState` and `AppDispatch` types from the store itself
 export type RootState = ReturnType<typeof store.getState>;

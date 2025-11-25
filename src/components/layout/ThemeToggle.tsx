@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useTheme } from '@/hooks/useTheme';
+import { useTheme } from '@/lib/hooks';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -82,8 +82,8 @@ export function ThemeToggle() {
           </span>
         </Button>
       </TooltipTrigger>
-      <TooltipContent 
-        side="bottom" 
+      <TooltipContent
+        side="bottom"
         sideOffset={8}
         className="!duration-0 !transition-none"
         style={{ animationDuration: '0s !important', transitionDuration: '0s !important' }}

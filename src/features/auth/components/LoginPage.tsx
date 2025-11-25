@@ -1,8 +1,5 @@
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
+import { useLogin } from '@/features/auth/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoginRequest } from '@/common/types/auth.types';
 import LoginForm from './LoginForm';
@@ -10,45 +7,11 @@ import { Key } from 'lucide-react';
 
 const LoginPage = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { loginUser } = useAuth();
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Get the redirect path from location state or default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  const { mutate: login, isPending } = useLogin();
 
   const handleLogin = async (data: LoginRequest & { rememberMe: boolean }) => {
-    console.log(from)
-    try {
-      setIsSubmitting(true);
-      
-      const { email, password } = data;
-      const success = await loginUser({ email, password });
-      
-      if (success) {
-        toast({
-          title: t('auth.loginSuccess'),
-          variant: 'default',
-        });
-        
-        // Navigate to the redirect path
-        navigate(from, { replace: true });
-      } else {
-        toast({
-          title: t('auth.invalidCredentials'),
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: t('errors.somethingWentWrong'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    const { email, password } = data;
+    login({ email, password });
   };
 
   return (
@@ -67,9 +30,9 @@ const LoginPage = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <LoginForm 
-          onSubmit={handleLogin} 
-          isSubmitting={isSubmitting} 
+        <LoginForm
+          onSubmit={handleLogin}
+          isSubmitting={isPending}
         />
       </CardContent>
     </Card>

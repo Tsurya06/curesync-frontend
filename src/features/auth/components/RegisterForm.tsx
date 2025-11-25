@@ -1,14 +1,11 @@
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useTranslation } from 'react-i18next';
-import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/hooks/useAuth';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
 import { RegisterRequest } from '@/common/types/auth.types';
 import { Loader2 } from 'lucide-react';
 
@@ -24,13 +21,14 @@ const registerSchema = yup.object({
     .required(),
 }).required();
 
-const RegisterForm = () => {
+interface RegisterFormProps {
+  onSubmit: (data: RegisterRequest) => void;
+  isSubmitting: boolean;
+}
+
+const RegisterForm = ({ onSubmit, isSubmitting }: RegisterFormProps) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { registerUser } = useAuth();
-  const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // React Hook Form
   const {
     register,
@@ -47,39 +45,13 @@ const RegisterForm = () => {
     },
   });
 
-  const onSubmit = async (data: RegisterRequest & { confirmPassword: string }) => {
-    try {
-      setIsSubmitting(true);
-      
-      const { firstName, lastName, email, password } = data;
-      const success = await registerUser({ firstName, lastName, email, password });
-      
-      if (success) {
-        toast({
-          title: t('auth.registerSuccess'),
-          variant: 'default',
-        });
-        
-        // Navigate to dashboard after successful registration
-        navigate('/dashboard');
-      } else {
-        toast({
-          title: t('errors.somethingWentWrong'),
-          variant: 'destructive',
-        });
-      }
-    } catch (error) {
-      toast({
-        title: t('errors.somethingWentWrong'),
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleFormSubmit = (data: RegisterRequest & { confirmPassword: string }) => {
+    const { firstName, lastName, email, password } = data;
+    onSubmit({ firstName, lastName, email, password });
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -94,7 +66,7 @@ const RegisterForm = () => {
               </p>
             )}
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="lastName">{t('auth.lastName')}</Label>
             <Input
@@ -108,7 +80,7 @@ const RegisterForm = () => {
             )}
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="email">{t('auth.email')}</Label>
           <Input
@@ -123,7 +95,7 @@ const RegisterForm = () => {
             </p>
           )}
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="password">{t('auth.password')}</Label>
           <Input
@@ -138,7 +110,7 @@ const RegisterForm = () => {
             </p>
           )}
         </div>
-        
+
         <div className="space-y-2">
           <Label htmlFor="confirmPassword">{t('auth.confirmPassword')}</Label>
           <Input
@@ -154,7 +126,7 @@ const RegisterForm = () => {
           )}
         </div>
       </div>
-      
+
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? (
           <>
@@ -165,7 +137,7 @@ const RegisterForm = () => {
           t('auth.register')
         )}
       </Button>
-      
+
       <div className="text-center text-sm">
         <span className="text-muted-foreground">{t('auth.alreadyHaveAccount')}</span>
         {' '}

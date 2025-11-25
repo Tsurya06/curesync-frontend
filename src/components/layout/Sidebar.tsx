@@ -1,10 +1,9 @@
 import { useTranslation } from 'react-i18next';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuth } from '@/lib/hooks';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BarChart, Settings, User, Users, X } from 'lucide-react';
+import { LayoutDashboard, BarChart, Settings, User, Users, X, Pill } from 'lucide-react';
 import { UserRole } from '@/common/types/auth.types';
 
 interface SidebarProps {
@@ -13,12 +12,15 @@ interface SidebarProps {
   onClose?: () => void;
 }
 
+import { useCaregiver } from '@/features/caregivers/context/CaregiverContext';
+
 const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const location = useLocation();
+  const { currentPatientId } = useCaregiver();
 
-  const isAdmin = user?.role === UserRole.ROLE_ADMIN;
+  const isAdmin = user?.role === UserRole.ADMIN;
 
   const navigation = [
     {
@@ -26,6 +28,25 @@ const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
       href: '/dashboard',
       icon: LayoutDashboard,
       current: location.pathname === '/dashboard',
+    },
+    {
+      name: t('medications.title', 'Medications'),
+      href: '/medications',
+      icon: Pill,
+      current: location.pathname.startsWith('/medications'),
+    },
+    // Only show "Caregivers" (manage my caregivers) if I am viewing my own account
+    ...(!currentPatientId ? [{
+      name: t('caregivers.title', 'Caregivers'),
+      href: '/caregivers',
+      icon: Users,
+      current: location.pathname === '/caregivers',
+    }] : []),
+    {
+      name: t('caregivers.myPatients', 'My Patients'),
+      href: '/patients',
+      icon: Users,
+      current: location.pathname === '/patients',
     },
     {
       name: t('navigation.profile'),
@@ -42,28 +63,28 @@ const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
     // Admin only routes
     ...(isAdmin
       ? [
-          {
-            name: 'Admin',
-            href: '/admin',
-            icon: Users,
-            current: location.pathname === '/admin',
-          },
-          {
-            name: 'Analytics',
-            href: '/analytics',
-            icon: BarChart,
-            current: location.pathname === '/analytics',
-          },
-        ]
+        {
+          name: t('navigation.admin', 'Admin'),
+          href: '/admin',
+          icon: Users,
+          current: location.pathname === '/admin',
+        },
+        {
+          name: t('navigation.analytics', 'Analytics'),
+          href: '/analytics',
+          icon: BarChart,
+          current: location.pathname === '/analytics',
+        },
+      ]
       : []),
   ];
 
   return (
     <div className={cn('flex h-full w-60 flex-col border-r bg-card', className)}>
       {/* Header with logo and close button (mobile only) */}
-      <div className="flex h-16 items-center border-b px-6">
+      <div className="flex h-16 items-center border-b px-6 shrink-0">
         <h1 className="text-xl font-bold">App</h1>
-        
+
         {mobile && onClose && (
           <Button
             variant="ghost"
@@ -78,12 +99,12 @@ const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
       </div>
 
       {/* Navigation links */}
-      <ScrollArea className="flex-1 px-3 py-4">
+      <div className="flex-1 overflow-y-auto px-3 py-4 no-scrollbar">
         <nav className="flex flex-col space-y-1">
           {navigation.map((item) => (
             <NavLink
               key={item.name}
-              to={item.href}
+              to={`${item.href}${location.search}`}
               onClick={mobile && onClose ? onClose : undefined}
               className={({ isActive }) =>
                 cn(
@@ -99,7 +120,7 @@ const Sidebar = ({ className, mobile = false, onClose }: SidebarProps) => {
             </NavLink>
           ))}
         </nav>
-      </ScrollArea>
+      </div>
 
       {/* Footer with version info */}
       <div className="border-t p-4">

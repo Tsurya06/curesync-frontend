@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
+import { useRegister } from '@/features/auth/api';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import RegisterForm from '@/features/auth/components/RegisterForm';
 import { UserPlus } from 'lucide-react';
 
 const RegisterPage = () => {
   const { t } = useTranslation();
+  const { mutate: register, isPending } = useRegister();
 
   return (
     <Card className="mx-auto w-full max-w-md">
@@ -18,11 +20,11 @@ const RegisterPage = () => {
           {t('auth.register')}
         </CardTitle>
         <CardDescription className="text-center">
-          Create a new account to get started
+          {t('auth.createAccountDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <RegisterForm />
+        <RegisterForm onSubmit={register} isSubmitting={isPending} />
       </CardContent>
     </Card>
   );
