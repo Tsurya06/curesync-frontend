@@ -13,10 +13,18 @@ export const PWAInstallPrompt = () => {
     const [showInstallPrompt, setShowInstallPrompt] = useState(false);
 
     useEffect(() => {
+        // Check if already dismissed - do this first
+        if (localStorage.getItem('pwa-install-dismissed')) {
+            return;
+        }
+
         const handler = (e: Event) => {
             e.preventDefault();
             setDeferredPrompt(e as BeforeInstallPromptEvent);
-            setShowInstallPrompt(true);
+            // Only show if not already dismissed
+            if (!localStorage.getItem('pwa-install-dismissed')) {
+                setShowInstallPrompt(true);
+            }
         };
 
         window.addEventListener('beforeinstallprompt', handler);
@@ -31,7 +39,8 @@ export const PWAInstallPrompt = () => {
         const { outcome } = await deferredPrompt.userChoice;
 
         if (outcome === 'accepted') {
-            console.log('User accepted the install prompt');
+            // Mark as dismissed when installed
+            localStorage.setItem('pwa-install-dismissed', 'true');
         }
 
         setDeferredPrompt(null);
@@ -40,16 +49,9 @@ export const PWAInstallPrompt = () => {
 
     const handleDismiss = () => {
         setShowInstallPrompt(false);
-        // Don't show again in this session
-        sessionStorage.setItem('pwa-install-dismissed', 'true');
+        // Don't show again ever (stored permanently)
+        localStorage.setItem('pwa-install-dismissed', 'true');
     };
-
-    // Check if already dismissed in this session
-    useEffect(() => {
-        if (sessionStorage.getItem('pwa-install-dismissed')) {
-            setShowInstallPrompt(false);
-        }
-    }, []);
 
     if (!showInstallPrompt || !deferredPrompt) {
         return null;
