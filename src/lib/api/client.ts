@@ -7,9 +7,11 @@ import { logger } from '@/lib/utils/logger';
  * API Response wrapper type
  */
 export interface ApiResponse<T = unknown> {
-	data: T;
-	message?: string;
 	success: boolean;
+	message: string;
+	data: T;
+	statusCode: number;
+	timestamp: string;
 }
 
 /**
@@ -139,12 +141,14 @@ function createApiClient() {
 
 				try {
 					// Refresh token
-					const response = await client.post<{
+					// Note: We use ApiResponse wrapper here because the refresh endpoint also follows the new structure
+					const response = await client.post<ApiResponse<{
 						token: string;
 						refreshToken: string;
-					}>('/api/auth/refresh', { refreshToken });
+					}>>('/api/auth/refresh', { refreshToken });
 
-					const { token, refreshToken: newRefreshToken } = response.data;
+					// Unwrap the data from the response envelope
+					const { token, refreshToken: newRefreshToken } = response.data.data;
 
 					// Update tokens
 					storage.setToken(token);
@@ -175,30 +179,30 @@ function createApiClient() {
 
 	// Public API
 	return {
-		// Convenience methods with typed responses
+		// Convenience methods with typed responses that automatically unwrap the data
 		get: async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
-			const response = await client.get<T>(url, config);
-			return response.data;
+			const response = await client.get<ApiResponse<T>>(url, config);
+			return response.data.data;
 		},
 
 		post: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
-			const response = await client.post<T>(url, data, config);
-			return response.data;
+			const response = await client.post<ApiResponse<T>>(url, data, config);
+			return response.data.data;
 		},
 
 		put: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
-			const response = await client.put<T>(url, data, config);
-			return response.data;
+			const response = await client.put<ApiResponse<T>>(url, data, config);
+			return response.data.data;
 		},
 
 		patch: async <T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> => {
-			const response = await client.patch<T>(url, data, config);
-			return response.data;
+			const response = await client.patch<ApiResponse<T>>(url, data, config);
+			return response.data.data;
 		},
 
 		delete: async <T>(url: string, config?: AxiosRequestConfig): Promise<T> => {
-			const response = await client.delete<T>(url, config);
-			return response.data;
+			const response = await client.delete<ApiResponse<T>>(url, config);
+			return response.data.data;
 		},
 
 		// Get raw axios instance if needed

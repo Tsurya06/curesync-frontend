@@ -5,10 +5,10 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,  DropdownMenuSeparator,
+  DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Bell, Menu, Settings, User, LogOut, Clock, Users, ChevronDown } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ThemeToggle } from '@/components/layout/ThemeToggle';
@@ -179,7 +179,7 @@ const Navbar = ({ onMenuClick }: NavbarProps) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                {/* Avatar removed from User type, using initials fallback */}
+                {user?.profilePicture && <AvatarImage src={user.profilePicture} alt={user?.firstName} className="object-cover" />}
                 <AvatarFallback>
                   {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
                 </AvatarFallback>

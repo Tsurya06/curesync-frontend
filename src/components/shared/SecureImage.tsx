@@ -31,8 +31,20 @@ export function SecureImage({ src, alt, className, fallback, ...props }: SecureI
         setIsLoading(true);
         setError(false);
 
-        const response = await api.get(src, { responseType: 'blob' });
-        const url = URL.createObjectURL(response);
+        // Use raw axios instance to bypass the automatic data unwrapping in client.ts
+        // We need the raw blob response, not response.data.data
+        const response = await api.getInstance().get(src, {
+          responseType: 'blob',
+          // We need to explicitly handle the response since the interceptor might try to log it
+        });
+
+        // The interceptor in client.ts returns response.data for the raw instance? 
+        // No, the interceptor returns the full response object, but let's check client.ts again.
+        // Wait, the interceptor in client.ts logs response.data. 
+        // If responseType is blob, response.data is a Blob.
+
+        const blob = response.data;
+        const url = URL.createObjectURL(blob);
 
         if (isMounted) {
           setImageSrc(url);

@@ -65,7 +65,7 @@ const ProfilePage = () => {
         <Card>
           <CardContent className="p-6 flex flex-col items-center space-y-4">
             <Avatar className="h-24 w-24">
-              {user?.profilePicture && <AvatarImage src={user.profilePicture} alt={user?.firstName} />}
+              {user?.profilePicture && <AvatarImage src={user.profilePicture} alt={user?.firstName} className="object-cover" />}
               <AvatarFallback className="text-2xl">
                 {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
               </AvatarFallback>
