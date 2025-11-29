@@ -4,16 +4,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Settings, Bell, Shield, Palette, Code } from 'lucide-react';
+import { Settings, Bell, Shield, Palette } from 'lucide-react';
 import { useTheme } from '@/lib/hooks';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { useApiConfig } from '@/lib/api-config';
+
 
 const SettingsPage = () => {
   const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
   const { i18n } = useTranslation();
-  const { isMockMode, toggleMockMode } = useApiConfig();
+
 
   return (
     <div className="space-y-6">
@@ -44,10 +44,7 @@ const SettingsPage = () => {
             <Shield className="h-4 w-4" />
             {t('settings.tabs.privacy')}
           </TabsTrigger>
-          <TabsTrigger value="developer" className="flex items-center gap-2">
-            <Code className="h-4 w-4" />
-            Developer
-          </TabsTrigger>
+
         </TabsList>
 
         <TabsContent value="general">
@@ -164,32 +161,6 @@ const SettingsPage = () => {
                   {t('settings.privacySection.sessionsDesc')}
                 </p>
                 <Button variant="outline">{t('settings.privacySection.signOutAll')}</Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="developer">
-          <Card>
-            <CardHeader>
-              <CardTitle>Developer Settings</CardTitle>
-              <CardDescription>
-                Configure development tools and mock data.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <Label htmlFor="mock-mode">Use Mock Data</Label>
-                  <p className="text-sm text-muted-foreground">
-                    Toggle between simulated mock data and real backend API.
-                  </p>
-                </div>
-                <Switch
-                  id="mock-mode"
-                  checked={isMockMode}
-                  onCheckedChange={toggleMockMode}
-                />
               </div>
             </CardContent>
           </Card>

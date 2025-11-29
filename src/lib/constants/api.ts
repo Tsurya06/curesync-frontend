@@ -24,10 +24,10 @@ export const API_ENDPOINTS = {
 
   // User Profile endpoints (/api/users)
   USERS: {
-    ME: '/api/users/me',
-    UPDATE_ME: '/api/users/me',
-    UPLOAD_PICTURE: '/api/users/me/picture',
-    CHANGE_PASSWORD: '/api/users/me/password',
+    ME: '/api/users/profile',
+    UPDATE_ME: '/api/users/profile',
+    UPLOAD_PICTURE: '/api/users/profile-picture',
+    CHANGE_PASSWORD: '/api/users/change-password',
     LIST: '/api/users',
     DETAIL: (id: string) => `/api/users/${id}`,
     UPDATE: (id: string) => `/api/users/${id}`,
@@ -38,6 +38,7 @@ export const API_ENDPOINTS = {
   MEDICATIONS: {
     BASE: '/api/medications',
     BY_ID: (id: string) => `/api/medications/${id}`,
+    UPLOAD_IMAGE: (id: string) => `/api/medications/${id}/image`,
     // Supports ?patientId= parameter for caregiver access
     // Supports pagination and filtering by status
   },
@@ -47,6 +48,7 @@ export const API_ENDPOINTS = {
     BASE: '/api/doses',
     SCHEDULE: '/api/doses/schedule',
     LOG: (id: string) => `/api/doses/${id}/log`,
+    DELETE: (id: string) => `/api/doses/${id}`,
     HISTORY: '/api/doses/history', // Deprecated?
     UPCOMING: '/api/doses/upcoming', // Deprecated?
     BY_ID: (id: string) => `/api/doses/${id}`,

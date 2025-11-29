@@ -1,14 +1,14 @@
-import { Plus, Edit2, Trash2, Clock, Bell, Check, X, History, User } from 'lucide-react';
+import { Plus, Edit2, Trash2, Clock, Bell, Check, X, History, User, Undo } from 'lucide-react';
+import { SecureImage } from '@/components/shared/SecureImage';
 import { ErrorState } from '@/components/shared/ErrorState';
 import { useTranslation } from 'react-i18next';
 import { format, isToday, isTomorrow, parseISO } from 'date-fns';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Badge } from '@/components/ui/badge';
 import { useMedications, useDeleteMedication } from '@/features/medications/api';
-import { useLogDose, useDailySchedule } from '@/features/medications/api/doses';
+import { useLogDose, useDailySchedule, useDeleteDose } from '@/features/medications/api/doses';
 import { DoseStatus } from '@/common/types/dose.types';
 import { useState, useEffect, useRef } from 'react';
 import { DeleteConfirmation } from './DeleteConfirmation';
@@ -43,8 +43,8 @@ export default function MedicationList() {
   const todayString = `${year}-${month}-${day}`;
 
   const { data: dailySchedule } = useDailySchedule(todayString, currentPatientId);
-
-  const { mutate: logDose } = useLogDose();
+  const { mutate: logDose } = useLogDose(currentPatientId);
+  const { mutate: deleteDose } = useDeleteDose(currentPatientId);
   const { mutate: deleteMedication } = useDeleteMedication(); // Use correct hook
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [historyId, setHistoryId] = useState<number | null>(null);
@@ -124,42 +124,57 @@ export default function MedicationList() {
       return;
     }
 
+    const currentTime = new Date();
+    const takenTimeISO = currentTime.toISOString();
+
+    console.log('🕐 Taking dose at:', {
+      localTime: currentTime.toString(),
+      ISOTime: takenTimeISO,
+      medicationId,
+      status
+    });
+
     logDose({
       medicationId,
       status,
       scheduledTime: todaysDose.scheduledTime, // Use the actual scheduled time from backend
-      takenTime: new Date().toISOString(),
+      takenTime: takenTimeISO,
     }, {
-      onSuccess: () => {
+      onSuccess: (data) => {
+        console.log('✅ Dose logged successfully:', data);
         toast.success(
           status === DoseStatus.TAKEN ? t('medications.doseTaken') : t('medications.doseSkipped')
         );
       },
-      onError: () => {
+      onError: (error) => {
+        console.error('❌ Failed to log dose:', error);
         toast.error(t('common.error'));
       }
     });
   };
 
-  const getDoseStatus = (medId: number, scheduledTime?: Date) => {
-    if (!dailySchedule || !scheduledTime) return null;
+  const getDoseStatus = (medId: number) => {
+    if (!dailySchedule) return null;
 
-    // Simply check if there's a logged dose for this medication today
-    // Don't worry about exact time matching - just check if they took/skipped it today
-    const today = new Date();
+    // Check if there's a logged dose for this medication today
+    // TEMPORARILY COMMENTED OUT DATE RESTRICTION - Shows Take/Skip for all dates
+    // const today = new Date();
 
     return dailySchedule.find(log => {
       if (log.medicationId !== medId) return false;
 
-      // Check if this log is for today and has been taken/skipped
-      const logTime = parseISO(log.scheduledTime);
-      const isToday = logTime.getDate() === today.getDate() &&
-        logTime.getMonth() === today.getMonth() &&
-        logTime.getFullYear() === today.getFullYear();
+      // TEMPORARILY COMMENTED OUT - Allow all dates
+      // // Check if this log is for today
+      // const logTime = parseISO(log.scheduledTime);
+      // const isToday = logTime.getDate() === today.getDate() &&
+      //   logTime.getMonth() === today.getMonth() &&
+      //   logTime.getFullYear() === today.getFullYear();
 
       const hasStatus = log.status === DoseStatus.TAKEN || log.status === DoseStatus.SKIPPED;
 
-      return isToday && hasStatus;
+      // TEMPORARILY COMMENTED OUT DATE CHECK
+      // return isToday && hasStatus;
+      return hasStatus; // Show status for any date
     });
   };
 
@@ -252,7 +267,7 @@ export default function MedicationList() {
         {medications.map((medication) => {
           const isHighlighted = highlightedId === medication.id;
           const nextDoseDate = getNextDoseDate(medication.id);
-          const doseStatus = getDoseStatus(medication.id, nextDoseDate);
+          const doseStatus = getDoseStatus(medication.id);
 
           return (
             <div
@@ -264,15 +279,26 @@ export default function MedicationList() {
               )}
             >
               <Card className="group relative overflow-hidden transition-all hover:shadow-md h-full">
-                <CardHeader className="pb-2">
+                {/* Medication Image */}
+                <div className="h-32 w-full bg-muted/30 relative overflow-hidden">
+                  <SecureImage
+                    src={medication.medicationImage}
+                    alt={medication.name}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60" />
+                  <div className="absolute bottom-2 left-3 right-3 text-white">
+                    <h3 className="font-bold text-lg leading-tight truncate">{medication.name}</h3>
+                    <p className="text-xs opacity-90">{medication.dosage}</p>
+                  </div>
+                </div>
+
+                <CardHeader className="pb-2 pt-3">
                   <div className="flex justify-between items-start">
                     <div>
-                      <CardTitle className="text-xl mb-1">{medication.name}</CardTitle>
-                      <Badge variant="secondary" className="font-normal">
-                        {medication.dosage}
-                      </Badge>
+                      {/* Name and dosage moved to image overlay */}
                     </div>
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-md p-1 shadow-sm">
                       {canLogDose && (
                         !doseStatus ? (
                           <>
@@ -302,8 +328,22 @@ export default function MedicationList() {
                             </Button>
                           </>
                         ) : (
-                          // Undo functionality removed for now as deleteDose is not fully supported in new API for logs
-                          <div className="h-8 w-8" />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            title={t('medications.undo')}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteDose({
+                                doseId: doseStatus.id,
+                                medicationId: medication.id,
+                                scheduledTime: doseStatus.scheduledTime
+                              });
+                            }}
+                          >
+                            <Undo className="h-4 w-4" />
+                          </Button>
                         )
                       )}
 
@@ -358,29 +398,37 @@ export default function MedicationList() {
                       <span>{t(`medications.frequencies.${medication.frequency}`)}</span>
                     </div>
 
-                    <div className={cn(
-                      "flex items-center font-medium p-2 rounded-md transition-colors",
-                      isHighlighted ? "bg-primary/10 text-primary animate-pulse" : "bg-primary/5 text-primary"
-                    )}>
-                      <Bell className="mr-2 h-4 w-4" />
-                      <span>
-                        {t('medications.nextDose')}: {' '}
-                        {doseStatus ? (
-                          <span className={cn(
-                            "font-semibold",
+                    <div className="space-y-1">
+                      {doseStatus && (
+                        <div className={cn(
+                          "flex items-center font-medium p-2 rounded-md",
+                          doseStatus.status === DoseStatus.TAKEN ? "bg-green-50 text-green-700" : "bg-amber-50 text-amber-700"
+                        )}>
+                          <Check className={cn(
+                            "mr-2 h-4 w-4",
                             doseStatus.status === DoseStatus.TAKEN ? "text-green-600" : "text-amber-600"
-                          )}>
+                          )} />
+                          <span className="font-semibold">
                             {doseStatus.status === DoseStatus.TAKEN ? t('medications.taken') : t('medications.skipped')}
                             {' '}({doseStatus.takenTime ? format(parseISO(doseStatus.takenTime), 'h:mm a') : ''})
                           </span>
-                        ) : (
-                          isHighlighted && nextDoseDate ? (
+                        </div>
+                      )}
+
+                      <div className={cn(
+                        "flex items-center font-medium p-2 rounded-md transition-colors",
+                        isHighlighted ? "bg-primary/10 text-primary animate-pulse" : "bg-primary/5 text-primary"
+                      )}>
+                        <Bell className="mr-2 h-4 w-4" />
+                        <span>
+                          {t('medications.nextDose')}: {' '}
+                          {isHighlighted && nextDoseDate ? (
                             <CountdownTimer targetDate={nextDoseDate} className="font-bold" />
                           ) : (
                             getNextDoseDisplay(medication.id)
-                          )
-                        )}
-                      </span>
+                          )}
+                        </span>
+                      </div>
                     </div>
 
                     {medication.notes && (

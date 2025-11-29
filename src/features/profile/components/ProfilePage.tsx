@@ -1,14 +1,53 @@
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/lib/hooks';
+import { useUpdateProfile, useUploadProfilePicture } from '@/features/auth/api/profile';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { User, Lock } from 'lucide-react';
+import { User, Lock, Loader2 } from 'lucide-react';
 
 const ProfilePage = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const updateProfile = useUpdateProfile();
+  const uploadProfilePicture = useUploadProfilePicture();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+      });
+    }
+  }, [user]);
+
+  const handleSave = () => {
+    if (!user) return;
+
+    updateProfile.mutate({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: user.email, // Email usually doesn't change here, but required by type? Checking type...
+      // Assuming UpdateProfileRequest might need email or it's optional. 
+      // Based on previous view of profile.ts, it takes UpdateProfileRequest.
+      // Let's assume we just send what changed or all.
+    });
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      uploadProfilePicture.mutate(file);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -26,7 +65,7 @@ const ProfilePage = () => {
         <Card>
           <CardContent className="p-6 flex flex-col items-center space-y-4">
             <Avatar className="h-24 w-24">
-              <AvatarImage alt={user?.firstName} />
+              {user?.profilePicture && <AvatarImage src={user.profilePicture} alt={user?.firstName} />}
               <AvatarFallback className="text-2xl">
                 {user?.firstName?.charAt(0)}{user?.lastName?.charAt(0)}
               </AvatarFallback>
@@ -44,7 +83,22 @@ const ProfilePage = () => {
               </p>
             </div>
 
-            <Button className="w-full">{t('profile.changePicture')}</Button>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileChange}
+            />
+            <Button
+              className="w-full"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadProfilePicture.isPending}
+            >
+              {uploadProfilePicture.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {t('profile.changePicture')}
+            </Button>
           </CardContent>
         </Card>
 
@@ -76,7 +130,8 @@ const ProfilePage = () => {
                       <label className="text-sm font-medium">{t('auth.firstName')}</label>
                       <input
                         type="text"
-                        defaultValue={user?.firstName}
+                        value={formData.firstName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
                         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
@@ -85,7 +140,8 @@ const ProfilePage = () => {
                       <label className="text-sm font-medium">{t('auth.lastName')}</label>
                       <input
                         type="text"
-                        defaultValue={user?.lastName}
+                        value={formData.lastName}
+                        onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
                         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                       />
                     </div>
@@ -113,7 +169,10 @@ const ProfilePage = () => {
                     />
                   </div>
 
-                  <Button>{t('common.save')}</Button>
+                  <Button onClick={handleSave} disabled={updateProfile.isPending}>
+                    {updateProfile.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    {t('common.save')}
+                  </Button>
                 </div>
               </TabsContent>
 

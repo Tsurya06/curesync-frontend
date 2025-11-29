@@ -1,21 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { DoseLog, LogDoseRequest } from '@/common/types/dose.types';
-import { MOCK_DOSES } from '@/lib/mock-data';
-import { isMockMode } from '@/lib/api-config';
+import { toast } from 'sonner';
+import { DoseLog, LogDoseRequest, DoseStatus } from '@/common/types/dose.types';
+
 import { api } from '@/lib/api/client';
 import { API_ENDPOINTS } from '@/lib/constants/api';
 
 // --- API Functions ---
 
-const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const getDailySchedule = async (date: string, patientId?: number): Promise<DoseLog[]> => {
-  if (isMockMode()) {
-    await delay(500);
-    // In mock mode, just return empty or static data for now as logic is complex
-    return MOCK_DOSES;
-  }
-
   const params: Record<string, string | number> = { date };
   if (patientId) params.patientId = patientId;
 
@@ -23,22 +16,6 @@ const getDailySchedule = async (date: string, patientId?: number): Promise<DoseL
 };
 
 const logDose = async ({ medicationId, ...data }: LogDoseRequest & { medicationId: number }): Promise<DoseLog> => {
-  if (isMockMode()) {
-    await delay(500);
-    const newDose: DoseLog = {
-      id: Date.now(),
-      userId: 1,
-      medicationId,
-      medicationName: 'Mock Med',
-      dosage: '10mg',
-      scheduledTime: new Date().toISOString(),
-      ...data,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-    MOCK_DOSES.push(newDose);
-    return newDose;
-  }
   return api.post<DoseLog>(API_ENDPOINTS.DOSES.LOG(String(medicationId)), data);
 };
 
@@ -46,17 +23,17 @@ const logDose = async ({ medicationId, ...data }: LogDoseRequest & { medicationI
 
 export const useDailySchedule = (date: string, patientId?: number | null) => {
   return useQuery({
-    queryKey: ['doses', 'schedule', date, patientId],
+    queryKey: ['doses', 'schedule', date, patientId ?? 'me'],
     queryFn: () => getDailySchedule(date, patientId || undefined),
   });
 };
 
-export const useLogDose = () => {
+export const useLogDose = (patientId?: number | null) => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: logDose,
-    onSuccess: (data) => {
+    onMutate: async (newDose) => {
       // Get today's date in local timezone
       const today = new Date();
       const year = today.getFullYear();
@@ -64,38 +41,78 @@ export const useLogDose = () => {
       const day = String(today.getDate()).padStart(2, '0');
       const todayString = `${year}-${month}-${day}`;
 
-      // Optimistically update the daily schedule cache
-      queryClient.setQueryData(['doses', 'schedule', todayString, undefined], (old: DoseLog[] | undefined) => {
-        if (!old) return [data];
+      const queryKey = ['doses', 'schedule', todayString, patientId ?? 'me'];
 
-        // Check if this dose already exists (by id)
-        const existingIndex = old.findIndex(d => d.id === data.id);
-        if (existingIndex >= 0) {
-          // Update existing
-          const newData = [...old];
-          newData[existingIndex] = data;
-          return newData;
-        }
+      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
+      await queryClient.cancelQueries({ queryKey });
 
-        // Add new dose
-        return [...old, data];
-      });
+      // Snapshot the previous value
+      const previousSchedule = queryClient.getQueryData<DoseLog[]>(queryKey);
 
-      // Also invalidate to refetch in background
-      queryClient.invalidateQueries({ queryKey: ['doses'] });
-      queryClient.invalidateQueries({ queryKey: ['medications'] });
+      // Optimistically update to the new value
+      if (previousSchedule) {
+        queryClient.setQueryData<DoseLog[]>(queryKey, (old) => {
+          if (!old) return [];
+
+          return old.map((dose) => {
+            // Match by medicationId and scheduledTime (since we might not have the log ID yet if it's pending)
+            // Note: scheduledTime in newDose might be undefined if not passed, but handleLogDose passes it.
+            if (
+              dose.medicationId === newDose.medicationId &&
+              newDose.scheduledTime &&
+              dose.scheduledTime === newDose.scheduledTime
+            ) {
+              return {
+                ...dose,
+                status: newDose.status,
+                takenTime: newDose.takenTime,
+                notes: newDose.notes,
+              };
+            }
+            return dose;
+          });
+        });
+      }
+
+      // Return a context object with the snapshotted value
+      return { previousSchedule, queryKey };
+    },
+    onSuccess: (data, _variables, context) => {
+      // Update the cache with the actual server response
+      if (context?.queryKey) {
+        queryClient.setQueryData<DoseLog[]>(context.queryKey, (old) => {
+          if (!old) return [data];
+
+          return old.map((dose) => {
+            // Match by ID if available, or by medicationId/scheduledTime
+            if (dose.id === data.id || (dose.medicationId === data.medicationId && dose.scheduledTime === data.scheduledTime)) {
+              return data;
+            }
+            return dose;
+          });
+        });
+      }
+
+      // Refetch schedule to sync with backend (history will be fetched when modal opens)
+      queryClient.invalidateQueries({ queryKey: ['doses', 'schedule'] });
+    },
+    onError: (_err, _newDose, context) => {
+      // If the mutation fails, use the context returned from onMutate to roll back
+      if (context?.previousSchedule) {
+        queryClient.setQueryData(context.queryKey, context.previousSchedule);
+      }
+      toast.error('Failed to log dose');
+
+      // Refetch to get the correct state from server
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
     },
   });
 };
 
 // Get dose history for a specific medication
 const getDoseHistory = async (medicationId: number, patientId?: number): Promise<DoseLog[]> => {
-  if (isMockMode()) {
-    await delay(500);
-    // Filter mock doses by medication ID
-    return MOCK_DOSES.filter(dose => dose.medicationId === medicationId);
-  }
-
   const params: Record<string, string | number> = { medicationId };
   if (patientId) params.patientId = patientId;
 
@@ -110,7 +127,77 @@ export const useDoseHistory = (medicationId?: number, patientId?: number | null)
   });
 };
 
-export const useDeleteDose = () => {
-  // Placeholder
-  return { mutate: () => { } };
+export const useDeleteDose = (patientId?: number | null) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ doseId, medicationId, scheduledTime }: { doseId: number; medicationId: number; scheduledTime: string }) => {
+      // Instead of DELETE, we re-log the dose as PENDING to undo it
+      return api.post<DoseLog>(API_ENDPOINTS.DOSES.LOG(String(medicationId)), {
+        status: DoseStatus.PENDING,
+        takenTime: new Date().toISOString(),
+        scheduledTime: scheduledTime,
+      });
+    },
+    onMutate: async ({ doseId }) => {
+      // Get today's date
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0');
+      const day = String(today.getDate()).padStart(2, '0');
+      const todayString = `${year}-${month}-${day}`;
+
+      const queryKey = ['doses', 'schedule', todayString, patientId ?? 'me'];
+
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey });
+
+      // Snapshot previous value
+      const previousSchedule = queryClient.getQueryData<DoseLog[]>(queryKey);
+
+      // Optimistically change status back to PENDING
+      if (previousSchedule) {
+        queryClient.setQueryData<DoseLog[]>(queryKey, (old) => {
+          if (!old) return [];
+          return old.map((dose) => {
+            if (dose.id === doseId) {
+              return { ...dose, status: DoseStatus.PENDING, takenTime: undefined };
+            }
+            return dose;
+          });
+        });
+      }
+
+      return { previousSchedule, queryKey };
+    },
+    onSuccess: (data, _variables, context) => {
+      // Update cache with server response
+      if (context?.queryKey) {
+        queryClient.setQueryData<DoseLog[]>(context.queryKey, (old) => {
+          if (!old) return [data];
+          return old.map((dose) => {
+            if (dose.medicationId === data.medicationId && dose.scheduledTime === data.scheduledTime) {
+              return data;
+            }
+            return dose;
+          });
+        });
+      }
+      toast.success('Dose unmarked successfully');
+
+      // Invalidate history so modal shows correct state
+      queryClient.invalidateQueries({ queryKey: ['doses', 'history'] });
+    },
+    onError: (_err, _variables, context) => {
+      // Roll back on error
+      if (context?.previousSchedule) {
+        queryClient.setQueryData(context.queryKey, context.previousSchedule);
+      }
+      toast.error('Failed to undo dose');
+
+      if (context?.queryKey) {
+        queryClient.invalidateQueries({ queryKey: context.queryKey });
+      }
+    },
+  });
 };

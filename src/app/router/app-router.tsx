@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, Outlet } from 'react-router-dom';
+import { AuthProvider } from '@/app/providers/auth-provider';
 
 // Layouts
 import MainLayout from '@/layouts/MainLayout';
@@ -34,129 +35,138 @@ const CaregiversPage = lazy(() => import('@/features/caregivers/components/Careg
 const PatientsPage = lazy(() => import('@/features/caregivers/components/PatientsPage'));
 
 const router = createBrowserRouter([
-  // Public routes (auth)
   {
-    element: <AuthLayout />,
-    children: [
-      {
-        path: 'login',
-        element: <LoginPage />,
-      },
-      {
-        path: 'register',
-        element: <RegisterPage />,
-      },
-      {
-        path: '/',
-        element: <Navigate to="/login" replace />,
-      },
-    ],
-  },
-
-  // Protected routes
-  {
-    element: <AuthGuard />,
-    children: [
-      {
-        element: <MainLayout />,
-        children: [
-          {
-            path: 'dashboard',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <DashboardPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'profile',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <ProfilePage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'settings',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <SettingsPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'medications',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <MedicationList />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'medications/new',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <MedicationForm />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'medications/:id/edit',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <MedicationForm />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'caregivers',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <CaregiversPage />
-              </Suspense>
-            ),
-          },
-          {
-            path: 'patients',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <PatientsPage />
-              </Suspense>
-            ),
-          },
-        ],
-      },
-    ],
-  },
-
-  // Admin routes
-  {
-    element: <RoleGuard allowedRoles={[UserRole.ADMIN]} />,
-    children: [
-      {
-        element: <MainLayout />,
-        children: [
-          {
-            path: 'admin',
-            element: (
-              <Suspense fallback={<LoadingFallback />}>
-                <AdminPage />
-              </Suspense>
-            ),
-          },
-        ],
-      },
-    ],
-  },
-
-  // 404 route
-  {
-    path: '*',
     element: (
-      <Suspense fallback={<LoadingFallback />}>
-        <NotFoundPage />
-      </Suspense>
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     ),
+    children: [
+      // Public routes (auth)
+      {
+        element: <AuthLayout />,
+        children: [
+          {
+            path: 'login',
+            element: <LoginPage />,
+          },
+          {
+            path: 'register',
+            element: <RegisterPage />,
+          },
+          {
+            path: '/',
+            element: <Navigate to="/login" replace />,
+          },
+        ],
+      },
+
+      // Protected routes
+      {
+        element: <AuthGuard />,
+        children: [
+          {
+            element: <MainLayout />,
+            children: [
+              {
+                path: 'dashboard',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <DashboardPage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'profile',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <ProfilePage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'settings',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <SettingsPage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'medications',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <MedicationList />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'medications/new',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <MedicationForm />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'medications/:id/edit',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <MedicationForm />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'caregivers',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <CaregiversPage />
+                  </Suspense>
+                ),
+              },
+              {
+                path: 'patients',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <PatientsPage />
+                  </Suspense>
+                ),
+              },
+            ],
+          },
+        ],
+      },
+
+      // Admin routes
+      {
+        element: <RoleGuard allowedRoles={[UserRole.ADMIN]} />,
+        children: [
+          {
+            element: <MainLayout />,
+            children: [
+              {
+                path: 'admin',
+                element: (
+                  <Suspense fallback={<LoadingFallback />}>
+                    <AdminPage />
+                  </Suspense>
+                ),
+              },
+            ],
+          },
+        ],
+      },
+
+      // 404 route
+      {
+        path: '*',
+        element: (
+          <Suspense fallback={<LoadingFallback />}>
+            <NotFoundPage />
+          </Suspense>
+        ),
+      },
+    ],
   },
 ]);
 

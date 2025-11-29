@@ -1,8 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
-import { Plus, Trash2, ArrowLeft, Loader2 } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Loader2, Image as ImageIcon, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,7 +20,9 @@ import {
 	useCreateMedication,
 	useUpdateMedication,
 	useMedication,
+	useUploadMedicationImage,
 } from '@/features/medications/api';
+import { SecureImage } from '@/components/shared/SecureImage';
 import { Frequency, CreateMedicationRequest } from '@/common/types/medication.types';
 
 export default function MedicationForm() {
@@ -32,6 +35,10 @@ export default function MedicationForm() {
 	const { data: medication, isLoading: isLoadingMedication } = useMedication(medicationId);
 	const { mutate: createMedication, isPending: isCreating } = useCreateMedication();
 	const { mutate: updateMedication, isPending: isUpdating } = useUpdateMedication();
+	const { mutate: uploadImage, isPending: isUploading } = useUploadMedicationImage();
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [previewImage, setPreviewImage] = useState<string | null>(null);
+	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
 	// Form shape with object array for timesOfDay
 	type MedicationFormData = Omit<CreateMedicationRequest, 'timesOfDay'> & {
@@ -66,6 +73,7 @@ export default function MedicationForm() {
 
 	useEffect(() => {
 		if (medication) {
+			setPreviewImage(medication.medicationImage || null);
 			reset({
 				name: medication.name,
 				dosage: medication.dosage,
@@ -79,6 +87,31 @@ export default function MedicationForm() {
 			});
 		}
 	}, [medication, reset]);
+
+	const handleImageUpload = (file: File, medId: number) => {
+		uploadImage({ id: medId, file }, {
+			onSuccess: () => {
+				// Preview will be updated by query invalidation re-fetching medication
+			}
+		});
+	};
+
+	const onFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+		const file = event.target.files?.[0];
+		if (file) {
+			if (isEditMode && medicationId) {
+				handleImageUpload(file, medicationId);
+			} else {
+				// For create mode, just show preview and store file
+				setSelectedFile(file);
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					setPreviewImage(reader.result as string);
+				};
+				reader.readAsDataURL(file);
+			}
+		}
+	};
 
 	const onSubmit = (data: MedicationFormData) => {
 		// Transform form data back to API request shape
@@ -100,7 +133,22 @@ export default function MedicationForm() {
 			);
 		} else {
 			createMedication(apiData, {
-				onSuccess: () => navigate('/medications'),
+				onSuccess: (newMed) => {
+					if (selectedFile) {
+						uploadImage({ id: newMed.id, file: selectedFile }, {
+							onSuccess: () => {
+								navigate('/medications');
+								toast.success(t('medications.createSuccessAddImage'));
+							},
+							onError: () => {
+								navigate('/medications');
+								toast.error(t('medications.createSuccessImageFailed'));
+							}
+						});
+					} else {
+						navigate('/medications');
+					}
+				},
 			});
 		}
 	};
@@ -131,6 +179,55 @@ export default function MedicationForm() {
 					<CardTitle>{t('medications.details')}</CardTitle>
 				</CardHeader>
 				<CardContent>
+					<div className="mb-6 flex flex-col items-center gap-4 p-4 border rounded-lg bg-muted/20">
+						<div className="relative h-32 w-32 rounded-lg overflow-hidden border bg-background flex items-center justify-center">
+							{previewImage ? (
+								previewImage.startsWith('data:') ? (
+									<img
+										src={previewImage}
+										alt="Medication"
+										className="h-full w-full object-cover"
+									/>
+								) : (
+									<SecureImage
+										src={previewImage}
+										alt="Medication"
+										className="h-full w-full object-cover"
+									/>
+								)
+							) : (
+								<ImageIcon className="h-12 w-12 text-muted-foreground/50" />
+							)}
+							{isUploading && (
+								<div className="absolute inset-0 bg-background/50 flex items-center justify-center">
+									<Loader2 className="h-8 w-8 animate-spin text-primary" />
+								</div>
+							)}
+						</div>
+						<div className="flex flex-col items-center gap-2">
+							<input
+								type="file"
+								ref={fileInputRef}
+								className="hidden"
+								accept="image/*"
+								onChange={onFileSelect}
+							/>
+							<Button
+								type="button"
+								variant="outline"
+								size="sm"
+								onClick={() => fileInputRef.current?.click()}
+								disabled={isUploading}
+							>
+								<Upload className="mr-2 h-4 w-4" />
+								{previewImage ? t('medications.changeImage') : t('medications.uploadImage')}
+							</Button>
+							<p className="text-xs text-muted-foreground">
+								{t('medications.imageHelp')}
+							</p>
+						</div>
+					</div>
+
 					<form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
 						<div className="space-y-2">
 							<Label htmlFor="name">{t('medications.form.name')}</Label>

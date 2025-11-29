@@ -7,8 +7,7 @@ import {
   CreateMedicationRequest,
   UpdateMedicationRequest,
 } from '@/common/types/medication.types';
-import { MOCK_MEDICATIONS } from '@/lib/mock-data';
-import { isMockMode } from '@/lib/api-config';
+
 
 // Extend queryKeys for medications
 const medicationKeys = {
@@ -19,8 +18,7 @@ const medicationKeys = {
   detail: (id: number) => [...medicationKeys.details(), id] as const,
 };
 
-// Helper for delays
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 
 /**
  * Hook to fetch all medications
@@ -29,17 +27,7 @@ export function useMedications(patientId?: number | null) {
   return useQuery({
     queryKey: medicationKeys.list(patientId ? String(patientId) : 'me'),
     queryFn: async () => {
-      if (isMockMode()) {
-        await delay(800);
-        // If viewing a patient, return a subset or different mock data
-        if (patientId) {
-          return MOCK_MEDICATIONS.slice(0, 3).map(m => ({
-            ...m,
-            userId: patientId // Pretend these belong to the patient
-          }));
-        }
-        return MOCK_MEDICATIONS;
-      }
+
 
       // Real API call
       const endpoint = patientId
@@ -63,12 +51,7 @@ export function useMedication(id: number) {
   return useQuery({
     queryKey: medicationKeys.detail(id),
     queryFn: async () => {
-      if (isMockMode()) {
-        await delay(500);
-        const med = MOCK_MEDICATIONS.find(m => m.id === id);
-        if (!med) throw new Error('Medication not found');
-        return med;
-      }
+
       return api.get<Medication>(API_ENDPOINTS.MEDICATIONS.BY_ID(String(id)));
     },
     enabled: !!id,
@@ -83,19 +66,7 @@ export function useCreateMedication() {
 
   return useMutation({
     mutationFn: async (data: CreateMedicationRequest) => {
-      if (isMockMode()) {
-        await delay(800);
-        const newMed = {
-          ...data,
-          id: Date.now(),
-          userId: 1,
-          status: 'ACTIVE',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        } as Medication;
-        MOCK_MEDICATIONS.push(newMed);
-        return newMed;
-      }
+
       return api.post<Medication>(API_ENDPOINTS.MEDICATIONS.BASE, data);
     },
     onSuccess: () => {
@@ -117,19 +88,7 @@ export function useUpdateMedication() {
 
   return useMutation({
     mutationFn: async ({ id, ...data }: UpdateMedicationRequest) => {
-      if (isMockMode()) {
-        await delay(800);
-        const index = MOCK_MEDICATIONS.findIndex(m => m.id === id);
-        if (index === -1) throw new Error('Medication not found');
 
-        const updatedMed = {
-          ...MOCK_MEDICATIONS[index],
-          ...data,
-          updatedAt: new Date().toISOString(),
-        };
-        MOCK_MEDICATIONS[index] = updatedMed;
-        return updatedMed;
-      }
       return api.put<Medication>(API_ENDPOINTS.MEDICATIONS.BY_ID(String(id)), data);
     },
     onSuccess: (data) => {
@@ -152,14 +111,7 @@ export function useDeleteMedication() {
 
   return useMutation({
     mutationFn: async (id: number) => {
-      if (isMockMode()) {
-        await delay(800);
-        const index = MOCK_MEDICATIONS.findIndex(m => m.id === id);
-        if (index !== -1) {
-          MOCK_MEDICATIONS.splice(index, 1);
-        }
-        return;
-      }
+
       return api.delete(API_ENDPOINTS.MEDICATIONS.BY_ID(String(id)));
     },
     onSuccess: () => {
@@ -169,6 +121,39 @@ export function useDeleteMedication() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to delete medication');
+    },
+  });
+}
+
+/**
+ * Upload medication image
+ */
+const uploadMedicationImage = async ({ id, file }: { id: number; file: File }) => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return api.post<Medication>(API_ENDPOINTS.MEDICATIONS.UPLOAD_IMAGE(String(id)), formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+};
+
+/**
+ * Hook to upload medication image
+ */
+export function useUploadMedicationImage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: uploadMedicationImage,
+    onSuccess: (data) => {
+      toast.success('Medication image updated successfully');
+      queryClient.invalidateQueries({ queryKey: medicationKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: medicationKeys.detail(data.id) });
+    },
+    onError: () => {
+      toast.error('Failed to upload medication image');
     },
   });
 }

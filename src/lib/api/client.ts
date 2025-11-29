@@ -112,8 +112,8 @@ function createApiClient() {
 				error
 			);
 
-			// Handle 401 - Token expired
-			if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
+			// Handle 401 - Token expired (or 403 if backend uses that for expiry)
+			if ((error.response?.status === 401 || error.response?.status === 403) && originalRequest && !originalRequest._retry) {
 				if (isRefreshing) {
 					// Queue the request while token is being refreshed
 					return new Promise((resolve, reject) => {

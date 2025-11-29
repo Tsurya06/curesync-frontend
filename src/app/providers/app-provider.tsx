@@ -1,7 +1,6 @@
 import { ReactNode } from 'react';
 import { ErrorBoundary } from 'react-error-boundary';
 import { QueryProvider } from './query-provider';
-import { AuthProvider } from './auth-provider';
 import { ThemeProvider } from './theme-provider';
 
 interface AppProviderProps {
@@ -53,11 +52,9 @@ export function AppProvider({ children }: AppProviderProps) {
   return (
     <ErrorBoundary FallbackComponent={ErrorFallback}>
       <QueryProvider>
-        <AuthProvider>
-          <ThemeProvider>
-            {children}
-          </ThemeProvider>
-        </AuthProvider>
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </QueryProvider>
     </ErrorBoundary>
   );

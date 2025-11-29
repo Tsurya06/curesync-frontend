@@ -18,6 +18,7 @@ export interface Medication {
   endDate?: string; // ISO Date string
   timesOfDay: string[]; // Array of time strings "HH:mm"
   notes?: string;
+  medicationImage?: string;
   status: 'ACTIVE' | 'ARCHIVED';
   createdAt: string;
   updatedAt: string;
