@@ -20,6 +20,7 @@ export interface DoseLog {
 }
 
 export interface LogDoseRequest {
+  doseId: number;
   status: DoseStatus;
   takenTime: string;
   scheduledTime?: string;

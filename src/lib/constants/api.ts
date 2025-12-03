@@ -1,11 +1,5 @@
-/**
- * API configuration and endpoint constants
- * Based on backend API specification
- * Swagger UI: http://localhost:8080/swagger-ui.html
- */
-
 export const API_CONFIG = {
-  BASE_URL: import.meta.env.VITE_BASE_URL || 'http://localhost:8080',
+  BASE_URL: import.meta.env.VITE_BASE_URL,
   TIMEOUT: 30000, // 30 seconds
 } as const;
 

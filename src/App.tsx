@@ -14,7 +14,7 @@ function App() {
       <TooltipProvider>
         <div className="min-h-screen bg-background text-foreground">
           <AppRouter />
-          <Toaster position="bottom-right" closeButton expand={false} gap={12} />
+          <Toaster position="top-center" closeButton gap={24} />
           <PWAInstallPrompt />
         </div>
       </TooltipProvider>

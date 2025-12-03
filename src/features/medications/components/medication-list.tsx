@@ -127,15 +127,8 @@ export default function MedicationList() {
     const currentTime = new Date();
     const takenTimeISO = currentTime.toISOString();
 
-    console.log('🕐 Taking dose at:', {
-      localTime: currentTime.toString(),
-      ISOTime: takenTimeISO,
-      medicationId,
-      status
-    });
-
     logDose({
-      medicationId,
+      doseId: todaysDose.id,
       status,
       scheduledTime: todaysDose.scheduledTime, // Use the actual scheduled time from backend
       takenTime: takenTimeISO,
@@ -172,7 +165,7 @@ export default function MedicationList() {
 
       const hasStatus = log.status === DoseStatus.TAKEN || log.status === DoseStatus.SKIPPED;
 
-      // TEMPORARILY COMMENTED OUT DATE CHECK
+			// TEMPORARILY COMMENTED OUT DATE CHECK
       // return isToday && hasStatus;
       return hasStatus; // Show status for any date
     });
@@ -337,7 +330,6 @@ export default function MedicationList() {
                               e.stopPropagation();
                               deleteDose({
                                 doseId: doseStatus.id,
-                                medicationId: medication.id,
                                 scheduledTime: doseStatus.scheduledTime
                               });
                             }}

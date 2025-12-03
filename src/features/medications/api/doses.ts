@@ -15,8 +15,8 @@ const getDailySchedule = async (date: string, patientId?: number): Promise<DoseL
   return api.get<DoseLog[]>(API_ENDPOINTS.DOSES.SCHEDULE, { params });
 };
 
-const logDose = async ({ medicationId, ...data }: LogDoseRequest & { medicationId: number }): Promise<DoseLog> => {
-  return api.post<DoseLog>(API_ENDPOINTS.DOSES.LOG(String(medicationId)), data);
+const logDose = async ({ doseId, ...data }: LogDoseRequest): Promise<DoseLog> => {
+  return api.post<DoseLog>(API_ENDPOINTS.DOSES.LOG(String(doseId)), data);
 };
 
 // --- Hooks ---
@@ -58,7 +58,7 @@ export const useLogDose = (patientId?: number | null) => {
             // Match by medicationId and scheduledTime (since we might not have the log ID yet if it's pending)
             // Note: scheduledTime in newDose might be undefined if not passed, but handleLogDose passes it.
             if (
-              dose.medicationId === newDose.medicationId &&
+              dose.id === newDose.doseId &&
               newDose.scheduledTime &&
               dose.scheduledTime === newDose.scheduledTime
             ) {
@@ -131,9 +131,9 @@ export const useDeleteDose = (patientId?: number | null) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ doseId, medicationId, scheduledTime }: { doseId: number; medicationId: number; scheduledTime: string }) => {
+    mutationFn: async ({ doseId, scheduledTime }: { doseId: number; scheduledTime: string }) => {
       // Instead of DELETE, we re-log the dose as PENDING to undo it
-      return api.post<DoseLog>(API_ENDPOINTS.DOSES.LOG(String(medicationId)), {
+      return api.post<DoseLog>(API_ENDPOINTS.DOSES.LOG(String(doseId)), {
         status: DoseStatus.PENDING,
         takenTime: new Date().toISOString(),
         scheduledTime: scheduledTime,
